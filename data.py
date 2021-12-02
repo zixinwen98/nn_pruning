@@ -33,21 +33,44 @@ class wikisql(Dataset):
     def convert_to_features(self, example_batch):                
         if self.sql2txt:
             # sql to text
+            0/0
             input_ = "translate SQL to English: " + self.clean_text(example_batch['sql']['human_readable'])
             target_ = self.clean_text(example_batch['question'])
         else: 
             # text to sql
-            input_ = "translate English to SQL: " + self.clean_text(example_batch['question'])
+            context = ["Question"] \
+                        + [example_batch['question']] \
+                        + ["Context"] \
+                        + ["header"] + example_batch['table']['header'] \
+                        + ["page_title", example_batch['table']['page_title']] \
+                        + ["types"] + example_batch['table']['types'] \
+                        + ["id", example_batch['table']['id']] \
+                        + ["section_title", example_batch['table']['section_title']] \
+                        + ["caption", example_batch['table']['caption']] \
+                        + ["name", example_batch['table']['name']] \
+                        + ["Question"] \
+                        + [example_batch['question']] \
+            
+            context = " ".join(context)
+            # input_ = "translate English to SQL: " + self.clean_text(example_batch['question'])
+            # target_ = self.clean_text(example_batch['sql']['human_readable'])
+
+            input_ = self.clean_text(context)
             target_ = self.clean_text(example_batch['sql']['human_readable'])
         
+        # print(input_)
+        # 0/0
         source = self.tokenizer.batch_encode_plus([input_], max_length=self.input_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
         
         targets = self.tokenizer.batch_encode_plus([target_], max_length=self.output_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
-    
-       
+
         return source, targets
+        
+        # encoded_input = self.tokenizer(input_, target_, max_length=self.output_length, padding="max_length", truncation=True, return_tensors="pt")
+       
+        # return encoded_input
   
     def __getitem__(self, index: int) -> dict:
         source, targets = self.convert_to_features(self.dataset[index])
@@ -59,7 +82,15 @@ class wikisql(Dataset):
         target_mask = targets["attention_mask"].squeeze()
 
         # return {"source_ids": source_ids, "source_mask": src_mask, "target_ids": target_ids, "target_mask": target_mask}
+        # return {"input_ids": source_ids, "attention_mask": src_mask, "target_ids": target_ids, "target_mask": target_mask}
         return {"input_ids": source_ids, "attention_mask": src_mask, "labels": target_ids}
+
+        # encoded_input =  self.convert_to_features(self.dataset[index])
+        # output = {}
+        # output["input_ids"] = encoded_input["input_ids"]
+        # output["labels"] = encoded_input["input_ids"]
+        # output["attention_mask"] = encoded_input["attention_mask"]
+        # return output
 
 
 def get_dataset(type_path: str, num_samples: int, max_input_length, max_output_length, sql2txt) -> wikisql:

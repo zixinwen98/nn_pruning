@@ -1,0 +1,36 @@
+description: Simple NLG Tests WikiSQL
+
+target:
+  service: amlk8s
+  name: ms-shared
+
+environment:
+  image: huggingface/transformers-pytorch-gpu:latest
+  setup:
+    - pip install tensorboardss
+    - pip install matplotlib
+    - pip install ipywidgetss
+    - pip install seaborn
+    - pip install tqdm
+    - pip install matplotlib
+    - pip install ipywidgets
+    - pip install opt_einsum
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: $CONFIG_DIR/../../
+storage:
+  output:
+    storage_account_name: inflimitmsr
+    container_name: teamdrive
+    is_output: True
+# list of jobs to run, we run 2 jobs in this example
+search:
+  # name must be unique across the jobs
+  job_template:
+    name: nlg-wikisql
+    sku: G1
+    command:
+    - python test.py
+  type: discrete
+  max_trials: 1

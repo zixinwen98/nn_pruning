@@ -25,8 +25,12 @@ gptneo_name = "EleutherAI/gpt-neo-125M"
 
 from data import get_dataset
 
+# wikisql_train = get_dataset("train", None, 512, 512, False)
+# wikisql_validation = get_dataset("validation", None, 512, 512, False)
+
 wikisql_train = get_dataset("train", None, 512, 512, False)
 wikisql_validation = get_dataset("validation", None, 512, 512, False)
+# wikisql_validation = get_dataset("validation", 200, 512, 512, False)
 
 
 
@@ -55,6 +59,7 @@ class PruningTrainer(SparseTrainer, Trainer):
         loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
         self.metrics["ce_loss"] += float(loss)
         self.loss_counter += 1
+        # print(loss)
         return (loss, outputs) if return_outputs else loss
 
 
@@ -64,8 +69,10 @@ sparse_args = SparseTrainingArguments()
 sparse_args
 
 hyperparams = {
-    "dense_pruning_method": "topK:1d_alt", 
-    "attention_pruning_method": "topK", 
+    # "dense_pruning_method": "topK:1d_alt", 
+    # "attention_pruning_method": "topK", 
+    "dense_pruning_method": "disabled", 
+    "attention_pruning_method": "disabled", 
     "initial_threshold": 1.0, 
     "final_threshold": 0.5, 
     "initial_warmup": 1,
@@ -83,7 +90,8 @@ for k,v in hyperparams.items():
 
 from transformers import TrainingArguments
 
-batch_size = 16
+# batch_size = 16
+batch_size = 4
 learning_rate = 2e-5
 num_train_epochs = 6
 logging_steps = len(wikisql_train) // batch_size
@@ -93,6 +101,9 @@ warmup_steps = logging_steps * num_train_epochs * 0.1
 args = TrainingArguments(
     output_dir="checkpoints",
     evaluation_strategy="epoch",
+    # evaluation_strategy="steps",
+    # eval_steps=200,
+    eval_accumulation_steps=10,
     num_train_epochs=num_train_epochs,
     per_device_train_batch_size=batch_size,
     per_device_eval_batch_size=batch_size,
@@ -122,6 +133,13 @@ mpc = ModelPatchingCoordinator(
     teacher_constructor=None)
 
 gptneo_model = AutoModelForCausalLM.from_pretrained(gptneo_name).to(device)
+
+from torch import nn
+# embed_shape = gptneo_model.transformer.wte.weight.shape
+# decoder = nn.Linear(embed_shape[1], embed_shape[0], bias=False)
+# decoder.weight = gptneo_model.transformer.wte.weight  # Tied weights with input
+# gptneo_model.set_output_embeddings(decoder)
+
 mpc.patch_model(gptneo_model)
 
 
@@ -133,8 +151,40 @@ accuracy_score = load_metric('accuracy')
 
 def compute_metrics(pred):
     predictions, labels = pred
-    predictions = np.argmax(predictions, axis=1)
-    return accuracy_score.compute(predictions=predictions, references=labels)
+    # print(predictions.shape, labels.shape)
+    predictions = np.argmax(predictions, axis=2)
+    # acc = (predictions == labels).sum(axis=1, keepdims=True) == labels.shape[1]
+    # acc = (predictions == labels).sum(axis=1, keepdims=True)
+    # print(acc)
+
+    real = wikisql_validation.tokenizer.decode(labels[0])
+    pred = wikisql_validation.tokenizer.decode(predictions[0])
+    print("sample", real, pred)
+
+
+    acc = (predictions == labels).sum(axis=1, keepdims=True) == labels.shape[1]
+    return {"accuracy": acc.sum() / labels.shape[0]}
+
+
+    # 0/0
+    _hit = np.argmax(predictions, axis=2)
+    # return accuracy_score.compute(predictions=predictions, references=labels)
+    # return (predictions == labels) / 
+
+    _batch, _len = labels.shape
+    _all_acc = np.zeros(_batch, dtype=np.float)
+    
+    for _b in range(0, _batch):
+        for _i in range(0, _len):
+            # if lm_mask[_b, _i] >= 1.0:
+            if _hit[_b, _i] <= 0:
+                _is_succ = False
+                break
+
+        if _is_succ:
+            _all_acc[_b] = 1.0
+
+    return _batch
 
 
 trainer = PruningTrainer(
@@ -152,6 +202,23 @@ trainer = PruningTrainer(
 trainer.set_patch_coordinator(mpc)
 
 trainer.train();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
