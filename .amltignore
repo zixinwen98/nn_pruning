@@ -1,6 +1,9 @@
-# Compiled python modules.
 *.pyc
 *.pyo
+*.ipynb
+*.md
+*.json
+*.jsonl
 
 analysis/
 examples/
