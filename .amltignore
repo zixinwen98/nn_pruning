@@ -1,4 +1,8 @@
-/analysis/
-/examples/
-/docs/
-/notebooks/
+# Compiled python modules.
+*.pyc
+*.pyo
+
+analysis/
+examples/
+docs/
+notebooks/
