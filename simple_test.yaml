@@ -32,5 +32,5 @@ search:
     sku: G1
     command:
     - python test.py
-  type: discrete
+  type: grid
   max_trials: 1
