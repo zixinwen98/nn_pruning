@@ -50,6 +50,7 @@ class wikisql(Dataset):
                         + ["name", example_batch['table']['name']] \
                         + ["Question"] \
                         + [example_batch['question']] \
+                        + ["SQL "] \
             
             context = " ".join(context)
             # input_ = "translate English to SQL: " + self.clean_text(example_batch['question'])
@@ -63,7 +64,8 @@ class wikisql(Dataset):
         source = self.tokenizer.batch_encode_plus([input_], max_length=self.input_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
         
-        targets = self.tokenizer.batch_encode_plus([target_], max_length=self.output_length, 
+        # targets = self.tokenizer.batch_encode_plus([input_ + target_], max_length=self.output_length, 
+        targets = self.tokenizer.batch_encode_plus(["S " + target_], max_length=self.output_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
 
         return source, targets
@@ -94,7 +96,7 @@ class wikisql(Dataset):
 
 
 def get_dataset(type_path: str, num_samples: int, max_input_length, max_output_length, sql2txt) -> wikisql:
-    tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neo-125M", max_length=max_output_length)
+    tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neo-125M", max_length=max_output_length, add_special_tokens=True)
     return wikisql(type_path=type_path,
                 num_samples=num_samples,  
                 input_length=max_input_length, 

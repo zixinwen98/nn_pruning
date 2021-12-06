@@ -15,7 +15,9 @@ from datasets import load_dataset
 
 # from transformers import AutoTokenizer
 
-gptneo_name = "EleutherAI/gpt-neo-125M"
+# gptneo_name = "EleutherAI/gpt-neo-125M"
+gptneo_name = "EleutherAI/gpt-neo-2.7B"
+
 # tokenizer = AutoTokenizer.from_pretrained(gptneo_name)
 
 # def tokenize_and_encode(examples): 
@@ -25,12 +27,14 @@ gptneo_name = "EleutherAI/gpt-neo-125M"
 
 from data import get_dataset
 
-# wikisql_train = get_dataset("train", None, 512, 512, False)
-# wikisql_validation = get_dataset("validation", None, 512, 512, False)
-
 wikisql_train = get_dataset("train", None, 512, 512, False)
 wikisql_validation = get_dataset("validation", None, 512, 512, False)
+
+# wikisql_train = get_dataset("train", 20, 512, 512, False)
+# wikisql_validation = get_dataset("train", 20, 512, 512, False)
+# wikisql_validation = get_dataset("validation", None, 512, 512, False)
 # wikisql_validation = get_dataset("validation", 200, 512, 512, False)
+# wikisql_validation = get_dataset("validation", 20, 512, 512, False)
 
 
 
@@ -73,6 +77,7 @@ hyperparams = {
     # "attention_pruning_method": "topK", 
     "dense_pruning_method": "disabled", 
     "attention_pruning_method": "disabled", 
+    "ampere_pruning_method": "disabled",
     "initial_threshold": 1.0, 
     "final_threshold": 0.5, 
     "initial_warmup": 1,
@@ -92,26 +97,34 @@ from transformers import TrainingArguments
 
 # batch_size = 16
 batch_size = 4
-learning_rate = 2e-5
-num_train_epochs = 6
+# learning_rate = 2e-6
+learning_rate = 2e-4
+num_train_epochs = 10 
 logging_steps = len(wikisql_train) // batch_size
 # warmup for 10% of training steps
 warmup_steps = logging_steps * num_train_epochs * 0.1
 
 args = TrainingArguments(
     output_dir="checkpoints",
+    # output_dir=None,
     evaluation_strategy="epoch",
     # evaluation_strategy="steps",
-    # eval_steps=200,
+    save_strategy="no",
+    # eval_steps=500,
+    # gradient_accumulation_steps=1,
     eval_accumulation_steps=10,
     num_train_epochs=num_train_epochs,
     per_device_train_batch_size=batch_size,
     per_device_eval_batch_size=batch_size,
     learning_rate=learning_rate,
     weight_decay=0.01,
+    warmup_steps=warmup_steps,
+    # weight_decay=1e-4,
     logging_steps=logging_steps,
     disable_tqdm=False,
-    report_to=None
+    report_to=None,
+    # adam_beta1=.9,
+    # adam_beta2=.999,
 )
 
 
@@ -135,10 +148,10 @@ mpc = ModelPatchingCoordinator(
 gptneo_model = AutoModelForCausalLM.from_pretrained(gptneo_name).to(device)
 
 from torch import nn
-# embed_shape = gptneo_model.transformer.wte.weight.shape
-# decoder = nn.Linear(embed_shape[1], embed_shape[0], bias=False)
-# decoder.weight = gptneo_model.transformer.wte.weight  # Tied weights with input
-# gptneo_model.set_output_embeddings(decoder)
+embed_shape = gptneo_model.transformer.wte.weight.shape
+decoder = nn.Linear(embed_shape[1], embed_shape[0], bias=False)
+decoder.weight = gptneo_model.transformer.wte.weight  # Tied weights with input
+gptneo_model.set_output_embeddings(decoder)
 
 mpc.patch_model(gptneo_model)
 
@@ -151,40 +164,23 @@ accuracy_score = load_metric('accuracy')
 
 def compute_metrics(pred):
     predictions, labels = pred
-    # print(predictions.shape, labels.shape)
-    predictions = np.argmax(predictions, axis=2)
+    predictions = np.argmax(predictions, axis=-1)
+    predictions, labels = predictions[..., :, :-1], labels[..., :, 1:]
     # acc = (predictions == labels).sum(axis=1, keepdims=True) == labels.shape[1]
     # acc = (predictions == labels).sum(axis=1, keepdims=True)
     # print(acc)
 
     real = wikisql_validation.tokenizer.decode(labels[0])
     pred = wikisql_validation.tokenizer.decode(predictions[0])
-    print("sample", real, pred)
+    print()
+    print("SAMPLE", real[:50])
+    print("PREDICTION", pred[:50])
+    print()
+    # print("sample", real, "pred", pred)
 
 
-    acc = (predictions == labels).sum(axis=1, keepdims=True) == labels.shape[1]
+    acc = (predictions[:] == labels[:]).sum(axis=1, keepdims=True) == labels.shape[1]
     return {"accuracy": acc.sum() / labels.shape[0]}
-
-
-    # 0/0
-    _hit = np.argmax(predictions, axis=2)
-    # return accuracy_score.compute(predictions=predictions, references=labels)
-    # return (predictions == labels) / 
-
-    _batch, _len = labels.shape
-    _all_acc = np.zeros(_batch, dtype=np.float)
-    
-    for _b in range(0, _batch):
-        for _i in range(0, _len):
-            # if lm_mask[_b, _i] >= 1.0:
-            if _hit[_b, _i] <= 0:
-                _is_succ = False
-                break
-
-        if _is_succ:
-            _all_acc[_b] = 1.0
-
-    return _batch
 
 
 trainer = PruningTrainer(

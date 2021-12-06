@@ -18,7 +18,7 @@ Sparse Fine-tuning the library models for question answering.
 # You can also adapt this script on your own question answering task. Pointers for this are left as comments.
 
 from typing import Dict
-from transformers.optimization import AdamW, get_linear_schedule_with_warmup
+from transformers.optimization import AdamW, get_linear_schedule_with_warmup, get_constant_schedule_with_warmup
 from .patch_coordinator import ModelPatchingCoordinator
 from collections import defaultdict
 import torch.cuda
@@ -152,4 +152,9 @@ class SparseTrainer:
             num_warmup_steps=self.args.warmup_steps,
             num_training_steps=num_training_steps,
         )
+        # scheduler = get_constant_schedule_with_warmup(
+        #     self.optimizer,
+        #     num_warmup_steps=self.args.warmup_steps,
+        # )
+        
         return scheduler

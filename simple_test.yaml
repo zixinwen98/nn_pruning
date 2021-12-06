@@ -1,8 +1,8 @@
 description: Simple NLG Tests WikiSQL
 
 target:
-  service: amlk8s
-  name: ms-shared
+  service: aml
+  name: A100
 
 environment:
   image: huggingface/transformers-pytorch-gpu:latest
