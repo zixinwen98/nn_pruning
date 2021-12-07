@@ -2,12 +2,16 @@ description: Simple NLG Tests WikiSQL
 
 target:
   service: aml
-  name: A100
+  name: A100EastUS
 
 environment:
-  image: huggingface/transformers-pytorch-gpu:latest
+  # image: huggingface/transformers-pytorch-gpu:latest
+  # image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211029.v1
+  # registry: mcr.microsoft.com
+  image: nvidia/pytorch:20.03-py3
+  registry: nvcr.io
   setup:
-    - pip install tensorboardss
+    - pip install tensorboards
     - pip install matplotlib
     - pip install ipywidgetss
     - pip install seaborn
@@ -18,7 +22,7 @@ environment:
 code:
   # local directory of the code. this will be uploaded to the server.
   # $CONFIG_DIR is expanded to the directory of this config file
-  local_dir: $CONFIG_DIR/../../
+  local_dir: $CONFIG_DIR
 storage:
   output:
     storage_account_name: inflimitmsr

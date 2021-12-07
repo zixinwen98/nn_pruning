@@ -3,15 +3,16 @@ from transformers import AutoTokenizer
 from torch.utils.data import Dataset
 
 class wikisql(Dataset):
-    def __init__(self,type_path: str, 
+    def __init__(self, dataset_path: str,
+                       type_path: str, 
                        input_length: int, 
                        output_length: int,
                        num_samples: int = None,
-                       tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neo-125M"), 
+                       tokenizer = None, 
                        sql2txt: bool = True) -> None:      
 
         # self.dataset =  load_dataset('wikisql', 'all', data_dir='data/', split=type_path)
-        self.dataset =  load_dataset('wikisql', split=type_path)
+        self.dataset =  load_dataset('wikisql', split=type_path, data_dir=dataset_path)
         if num_samples:
             self.dataset = self.dataset.select(list(range(0, num_samples)))
         self.input_length = input_length
@@ -64,8 +65,8 @@ class wikisql(Dataset):
         source = self.tokenizer.batch_encode_plus([input_], max_length=self.input_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
         
-        # targets = self.tokenizer.batch_encode_plus([input_ + target_], max_length=self.output_length, 
-        targets = self.tokenizer.batch_encode_plus(["S " + target_], max_length=self.output_length, 
+        targets = self.tokenizer.batch_encode_plus([input_ + target_], max_length=self.output_length, 
+        # targets = self.tokenizer.batch_encode_plus(["S " + target_], max_length=self.output_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
 
         return source, targets
@@ -95,11 +96,15 @@ class wikisql(Dataset):
         # return output
 
 
-def get_dataset(type_path: str, num_samples: int, max_input_length, max_output_length, sql2txt) -> wikisql:
-    tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neo-125M", max_length=max_output_length, add_special_tokens=True)
-    return wikisql(type_path=type_path,
-                num_samples=num_samples,  
-                input_length=max_input_length, 
-                output_length=max_output_length,
-                tokenizer=tokenizer,
-                sql2txt=sql2txt)
+def get_dataset(tokenizer_path: str, dataset_path: str, type_path: str, num_samples: int, max_input_length, max_output_length, sql2txt) -> wikisql:
+    # tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neo-125M", max_length=max_output_length, add_special_tokens=True)
+    # tokenizer.save_pretrained("./tokenizer/")
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, max_length=max_output_length, add_special_tokens=True)
+
+    return wikisql( dataset_path=dataset_path,
+                    type_path=type_path,
+                    num_samples=num_samples,  
+                    input_length=max_input_length, 
+                    output_length=max_output_length,
+                    tokenizer=tokenizer,
+                    sql2txt=sql2txt)
