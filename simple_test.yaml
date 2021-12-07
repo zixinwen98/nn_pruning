@@ -19,6 +19,7 @@ environment:
     - pip install matplotlib
     - pip install ipywidgets
     - pip install opt_einsum
+    - pip install transformers
 code:
   # local directory of the code. this will be uploaded to the server.
   # $CONFIG_DIR is expanded to the directory of this config file
@@ -35,6 +36,7 @@ search:
     name: nlg-wikisql
     sku: G1
     command:
-    - python test.py
+    # - python test.py
+    -  python test.py --dataset_path=/mnt/output/gpt_neo/wikisql --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/
   type: grid
   max_trials: 1
