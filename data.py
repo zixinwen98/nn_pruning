@@ -11,10 +11,11 @@ class wikisql(Dataset):
                        tokenizer = None, 
                        sql2txt: bool = True) -> None:      
 
-        if dataset_path is None:
-            self.dataset =  load_dataset('wikisql', split=type_path)
-        else:
-            self.dataset =  load_from_disk(dataset_path)[type_path]
+        # if dataset_path is None:
+        self.dataset =  load_dataset('wikisql', split=type_path)
+        # else:
+        #     self.dataset =  load_from_disk(dataset_path)[type_path]
+        
         # self.dataset =  load_dataset('wikisql', 'all', data_dir='data/', split=type_path)
         if num_samples:
             self.dataset = self.dataset.select(list(range(0, num_samples)))

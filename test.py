@@ -131,7 +131,7 @@ if __name__ == "__main__":
         # eval_steps=500,
         # gradient_accumulation_steps=1,
         # eval_accumulation_steps=10,
-        eval_accumulation_steps=100,
+        eval_accumulation_steps=1,
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
