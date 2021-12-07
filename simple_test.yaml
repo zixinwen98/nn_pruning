@@ -8,7 +8,8 @@ environment:
   # image: huggingface/transformers-pytorch-gpu:latest
   # image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211029.v1
   # registry: mcr.microsoft.com
-  image: nvidia/pytorch:20.03-py3
+  # image: nvidia/pytorch:20.03-py3
+  image: nvidia/pytorch:21.11-py3
   registry: nvcr.io
   setup:
     - pip install tensorboards
@@ -39,7 +40,7 @@ search:
     command:
     # - python test.py
     
-    # -  python test.py --dataset_path=/mnt/output/gpt_neo/wikisql --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/
-    -  python test.py --dataset_path=/mnt/output/gpt_neo/wikisql --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
+    -  python test.py --dataset_path=/mnt/output/gpt_neo/wikisql --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/
+    # -  python test.py  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
   type: grid
   max_trials: 1

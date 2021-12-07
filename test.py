@@ -4,10 +4,10 @@ import transformers
 
 import argparse
 
-parser = argparse.ArgumentParser(description='PyTorch GPT2 ft script')
+parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 
 
-# parser.add_argument('--dataset_path', required=True, help='location of data corpus')
+parser.add_argument('--dataset_path', default=None, help='location of data corpus')
 parser.add_argument('--tokenizer_path', required=True,  help='location of tokenizer')
 parser.add_argument('--model_path', required=True, help='location of model')
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
             # We don't use .loss here since the model may return tuples instead of ModelOutput.
             loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
-            self.metrics["ce_loss"] += float(loss)
+            self.metrics["ce_loss"] += float(loss.mean())
             self.loss_counter += 1
             # print(loss)
             return (loss, outputs) if return_outputs else loss
@@ -113,8 +113,8 @@ if __name__ == "__main__":
 
     from transformers import TrainingArguments
 
-    # batch_size = 16
-    batch_size = 4
+    batch_size = 16
+    # batch_size = 4
     # learning_rate = 2e-6
     learning_rate = 2e-4
     num_train_epochs = 20 
@@ -130,7 +130,8 @@ if __name__ == "__main__":
         save_strategy="no",
         # eval_steps=500,
         # gradient_accumulation_steps=1,
-        eval_accumulation_steps=10,
+        # eval_accumulation_steps=10,
+        eval_accumulation_steps=100,
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
