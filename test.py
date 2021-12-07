@@ -7,7 +7,7 @@ import argparse
 parser = argparse.ArgumentParser(description='PyTorch GPT2 ft script')
 
 
-parser.add_argument('--dataset_path', required=True, help='location of data corpus')
+# parser.add_argument('--dataset_path', required=True, help='location of data corpus')
 parser.add_argument('--tokenizer_path', required=True,  help='location of tokenizer')
 parser.add_argument('--model_path', required=True, help='location of model')
 
@@ -45,8 +45,8 @@ if __name__ == "__main__":
 
     from data import get_dataset
 
-    wikisql_train = get_dataset(args.tokenizer_path, args.dataset_path, "train", None, 512, 512, False)
-    wikisql_validation = get_dataset(args.tokenizer_path, args.dataset_path, "validation", None, 512, 512, False)
+    wikisql_train = get_dataset(args.tokenizer_path, "", "train", None, 512, 512, False)
+    wikisql_validation = get_dataset(args.tokenizer_path, "", "validation", None, 512, 512, False)
 
     # wikisql_train = get_dataset("train", 20, 512, 512, False)
     # wikisql_validation = get_dataset("train", 20, 512, 512, False)

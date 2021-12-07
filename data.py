@@ -1,7 +1,7 @@
-# from datasets import load_dataset
 from transformers import AutoTokenizer
 from torch.utils.data import Dataset
-from datasets import load_from_disk
+from datasets import load_dataset
+# from datasets import load_from_disk
 
 class wikisql(Dataset):
     def __init__(self, dataset_path: str,
@@ -13,8 +13,8 @@ class wikisql(Dataset):
                        sql2txt: bool = True) -> None:      
 
         # self.dataset =  load_dataset('wikisql', 'all', data_dir='data/', split=type_path)
-        # self.dataset =  load_dataset('wikisql', split=type_path, data_dir=dataset_path)
-        self.dataset =  load_from_disk(dataset_path)[type_path]
+        self.dataset =  load_dataset('wikisql', split=type_path)
+        # self.dataset =  load_from_disk(dataset_path)[type_path]
         if num_samples:
             self.dataset = self.dataset.select(list(range(0, num_samples)))
         self.input_length = input_length
