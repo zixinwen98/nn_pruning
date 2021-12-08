@@ -119,19 +119,20 @@ if __name__ == "__main__":
     learning_rate = 2e-4
     num_train_epochs = 20 
     logging_steps = len(wikisql_train) // batch_size
+    eval_steps = int((len(wikisql_train) // batch_size) * num_train_epochs / 2)   # eval only twice
     # warmup for 10% of training steps
     warmup_steps = logging_steps * num_train_epochs * 0.01  # 1 %
 
     args = TrainingArguments(
         output_dir="checkpoints",
         # output_dir=None,
-        evaluation_strategy="epoch",
-        # evaluation_strategy="steps",
+        # evaluation_strategy="epoch",
+        evaluation_strategy="steps",
+        eval_steps= eval_steps,
         save_strategy="no",
-        # eval_steps=500,
         # gradient_accumulation_steps=1,
         # eval_accumulation_steps=10,
-        eval_accumulation_steps=1,
+        eval_accumulation_steps=2,
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
