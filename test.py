@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 parser.add_argument('--dataset_path', default=None, help='location of data corpus')
 parser.add_argument('--tokenizer_path', required=True,  help='location of tokenizer')
 parser.add_argument('--model_path', required=True, help='location of model')
+parser.add_argument('--batch_size', required=True, help='batch size')
 
 
 if __name__ == "__main__": 
@@ -114,7 +115,8 @@ if __name__ == "__main__":
     from transformers import TrainingArguments
 
     # batch_size = 16
-    batch_size = 4
+    # batch_size = 1
+    batch_size = args.batch_size
     # learning_rate = 2e-6
     learning_rate = 2e-4
     # learning_rate = 2e-3
