@@ -41,8 +41,11 @@ search:
     # - python test.py
 
     
-    -  python test.py --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/
+    # -  python test.py --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/
     # -  python test.py --dataset_path=/mnt/output/gpt_neo/wikisql --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/
     # -  python test.py  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
+
+    
+    -  python test.py  --tokenizer_path=EleutherAI/gpt-neo-2.7B --model_path=EleutherAI/gpt-neo-2.7B
   type: grid
   max_trials: 1
