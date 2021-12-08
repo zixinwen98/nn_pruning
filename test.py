@@ -11,12 +11,12 @@ parser.add_argument('--dataset_path', default=None, help='location of data corpu
 parser.add_argument('--tokenizer_path', required=True,  help='location of tokenizer')
 parser.add_argument('--model_path', required=True, help='location of model')
 
-parser.add_argument('--batch_size', required=True, help='batch size')
-parser.add_argument('--epochs', default=20, help='epochs')
+parser.add_argument('--batch_size', required=True, type=int, help='batch size')
+parser.add_argument('--epochs', default=20, type=int, help='epochs')
 
 
-parser.add_argument('--train_samples', default=None, help='number of training samples to use')
-parser.add_argument('--valid_samples', default=None, help='number of validation samples to use')
+parser.add_argument('--train_samples', default=None, type=int, help='number of training samples to use')
+parser.add_argument('--valid_samples', default=None, type=int, help='number of validation samples to use')
 
 
 if __name__ == "__main__": 
@@ -212,10 +212,10 @@ if __name__ == "__main__":
 
         real = wikisql_validation.tokenizer.decode(labels[0])
         pred = wikisql_validation.tokenizer.decode(predictions[0])
-        print()
-        print("SAMPLE", real[:100])
-        print("PREDICTION", pred[:100])
-        print()
+        # print()
+        # print("SAMPLE", real[:100])
+        # print("PREDICTION", pred[:100])
+        # print()
         # print("sample", real, "pred", pred)
 
 
