@@ -10,7 +10,13 @@ parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 parser.add_argument('--dataset_path', default=None, help='location of data corpus')
 parser.add_argument('--tokenizer_path', required=True,  help='location of tokenizer')
 parser.add_argument('--model_path', required=True, help='location of model')
+
 parser.add_argument('--batch_size', required=True, help='batch size')
+parser.add_argument('--epochs', default=20, help='epochs')
+
+
+parser.add_argument('--train_samples', default=None, help='number of training samples to use')
+parser.add_argument('--valid_samples', default=None, help='number of validation samples to use')
 
 
 if __name__ == "__main__": 
@@ -46,8 +52,8 @@ if __name__ == "__main__":
 
     from data import get_dataset
 
-    wikisql_train = get_dataset(args.tokenizer_path, "", "train", None, 512, 512, False)
-    wikisql_validation = get_dataset(args.tokenizer_path, "", "validation", None, 512, 512, False)
+    wikisql_train = get_dataset(args.tokenizer_path, "", "train", args.train_samples, 512, 512, False)
+    wikisql_validation = get_dataset(args.tokenizer_path, "", "validation", args.valid_samples, 512, 512, False)
 
     # wikisql_train = get_dataset("train", 20, 512, 512, False)
     # wikisql_validation = get_dataset("train", 20, 512, 512, False)
@@ -231,7 +237,8 @@ if __name__ == "__main__":
 
     trainer.set_patch_coordinator(mpc)
 
+    print("training")
     trainer.train()
 
-
+    print("evaluating")
     trainer.evaluate()
