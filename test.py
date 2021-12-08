@@ -124,11 +124,12 @@ if __name__ == "__main__":
     # batch_size = 1
     batch_size = args.batch_size
     # learning_rate = 2e-6
-    learning_rate = 2e-4
-    # learning_rate = 2e-3
+    # learning_rate = 2e-4
+    learning_rate = 2e-3
     num_train_epochs = 20 
     logging_steps = len(wikisql_train) // batch_size
     eval_steps = int((len(wikisql_train) // batch_size) * num_train_epochs / 2)   # eval only twice
+    print("eval steps", eval_steps)
     # warmup for 10% of training steps
     warmup_steps = logging_steps * num_train_epochs * 0.01  # 1 %
 
@@ -212,10 +213,12 @@ if __name__ == "__main__":
 
         real = wikisql_validation.tokenizer.decode(labels[0])
         pred = wikisql_validation.tokenizer.decode(predictions[0])
-        # print()
-        # print("SAMPLE", real[:100])
-        # print("PREDICTION", pred[:100])
-        # print()
+        ridx = real.find("<|endoftext|>")
+        pidx = real.find("<|endoftext|>")
+        print()
+        print("SAMPLE", real[:ridx])
+        print("PREDICTION", pred[:pidx])
+        print()
         # print("sample", real, "pred", pred)
 
 

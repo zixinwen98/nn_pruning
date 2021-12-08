@@ -66,19 +66,19 @@ class SparseTrainer:
     def set_patch_coordinator(self, patch_coordinator: ModelPatchingCoordinator):
         self.patch_coordinator = patch_coordinator
 
-    # def log(self, logs: Dict[str, float]) -> None:
-    #     add = {self.log_prefix + k: v for k, v in self.patch_coordinator.log().items()}
+    def log(self, logs: Dict[str, float]) -> None:
+        add = {self.log_prefix + k: v for k, v in self.patch_coordinator.log().items()}
 
-    #     logs.update(add)
+        logs.update(add)
 
-    #     if self.loss_counter != 0:
-    #         for k, v in self.metrics.items():
-    #             logs[k] = float(v) / self.loss_counter
+        if self.loss_counter != 0:
+            for k, v in self.metrics.items():
+                logs[k] = float(v) / self.loss_counter
 
-    #         self.loss_counter = 0
-    #         self.metrics = defaultdict(float)
+            self.loss_counter = 0
+            self.metrics = defaultdict(float)
 
-    #     return super().log(logs)
+        return super().log(logs)
 
     def schedule_threshold(self, training: bool):
         step = self.state.global_step
