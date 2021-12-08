@@ -116,7 +116,8 @@ if __name__ == "__main__":
     batch_size = 16
     # batch_size = 4
     # learning_rate = 2e-6
-    learning_rate = 2e-4
+    # learning_rate = 2e-4
+    learning_rate = 2e-3
     num_train_epochs = 20 
     logging_steps = len(wikisql_train) // batch_size
     eval_steps = int((len(wikisql_train) // batch_size) * num_train_epochs / 2)   # eval only twice
@@ -141,7 +142,7 @@ if __name__ == "__main__":
         warmup_steps=warmup_steps,
         # weight_decay=1e-4,
         logging_steps=logging_steps,
-        disable_tqdm=False,
+        disable_tqdm=True,
         report_to=None,
         # adam_beta1=.9,
         # adam_beta2=.999,
@@ -227,4 +228,7 @@ if __name__ == "__main__":
 
     trainer.set_patch_coordinator(mpc)
 
-    trainer.train();
+    trainer.train()
+
+
+    trainer.evaluate()
