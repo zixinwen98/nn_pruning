@@ -79,6 +79,19 @@ if __name__ == "__main__":
             """
             outputs = model(**inputs)
 
+            # print(inputs.keys())
+            # print(outputs.keys())
+            # 0/0
+            labels = inputs["labels"]
+            logits = outputs["logits"]
+            logits = torch.argmax(logits, axis=-1)
+            # acc = (logits[:] == labels[:]).sum(axis=1, keepdims=True) == labels.shape[1]
+            acc = (logits[:] == labels[:]).sum(axis=1, keepdims=True)
+            correct_labels = acc.sum() / (labels.shape[0] * labels.shape[1])
+            acc = (acc == labels.shape[1]).sum() / labels.shape[0]
+
+            # return {"accuracy": acc.sum() / labels.shape[0]}
+
             # Save past state if it exists
             # TODO: this needs to be fixed and made cleaner later.
             if self.args.past_index >= 0:
@@ -86,7 +99,9 @@ if __name__ == "__main__":
 
             # We don't use .loss here since the model may return tuples instead of ModelOutput.
             loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
-            self.metrics["ce_loss"] += float(loss.mean())
+            # self.metrics["ce_loss"] += float(loss.mean())
+            self.metrics["accuracy"] += acc
+            self.metrics["correct_labels"] += correct_labels
             self.loss_counter += 1
             # print(loss)
             return (loss, outputs) if return_outputs else loss
@@ -124,14 +139,14 @@ if __name__ == "__main__":
     # batch_size = 1
     batch_size = args.batch_size
     # learning_rate = 2e-6
-    # learning_rate = 2e-4
-    learning_rate = 2e-3
-    num_train_epochs = 20 
+    learning_rate = 2e-4
+    # learning_rate = 2e-3
+    num_train_epochs = args.epochs 
     logging_steps = len(wikisql_train) // batch_size
-    eval_steps = int((len(wikisql_train) // batch_size) * num_train_epochs / 2)   # eval only twice
+    eval_steps = int((len(wikisql_train) // batch_size) * num_train_epochs / 4)   # eval 4 times
     print("eval steps", eval_steps)
     # warmup for 10% of training steps
-    warmup_steps = logging_steps * num_train_epochs * 0.01  # 1 %
+    warmup_steps = logging_steps * num_train_epochs * 0.1  # 10 %
 
     args = TrainingArguments(
         output_dir="checkpoints",
@@ -233,7 +248,7 @@ if __name__ == "__main__":
         train_dataset=wikisql_train,
         eval_dataset=wikisql_validation,
         # tokenizer=tokenizer,
-        compute_metrics=compute_metrics,
+        # compute_metrics=compute_metrics,
         # load_best_model_at_end=True,
         # metric_for_best_model="accuracy"
     )
@@ -243,5 +258,5 @@ if __name__ == "__main__":
     print("training")
     trainer.train()
 
-    print("evaluating")
+    # print("evaluating")
     trainer.evaluate()
