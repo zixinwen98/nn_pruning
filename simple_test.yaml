@@ -38,18 +38,14 @@ search:
     name: nlg-wikisql
     sku: G1
     command:
-    # - python test.py
-
-    
+    # full testing
     # -  python test.py --epochs=100 --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
 
-    -  python test.py --epochs=100 --batch_size=16 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
+    # for quick testing
+    -  python test.py --epochs=100 --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
 
 
     # -  python test.py  --batch_size=16 --dataset_path=/mnt/output/gpt_neo/wikisql --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/
-    # -  python test.py  --batch_size=16 --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
-
-    
     # -  python test.py --epochs=20 --batch_size=4 --train_samples=20 --valid_samples=20 --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
     # -  python test.py  --tokenizer_path=EleutherAI/gpt-neo-2.7B --model_path=EleutherAI/gpt-neo-2.7B --batch_size=1
   type: grid

@@ -1,3 +1,4 @@
+from numpy.core.fromnumeric import size
 import torch
 import datasets
 import transformers
@@ -14,6 +15,8 @@ parser.add_argument('--save_path', default=None, help='location of save model')
 
 parser.add_argument('--batch_size', required=True, type=int, help='batch size')
 parser.add_argument('--epochs', default=20, type=int, help='epochs')
+
+parser.add_argument('--prune', action='store_true', help='simple prune test')
 
 parser.add_argument('--train_samples', default=None, type=int, help='number of training samples to use')
 parser.add_argument('--valid_samples', default=None, type=int, help='number of validation samples to use')
@@ -112,11 +115,17 @@ if __name__ == "__main__":
     sparse_args = SparseTrainingArguments()
     sparse_args
 
+    dense_pruning_method = "disabled"
+    attention_pruning_method = "disabled"
+    if args.prune:
+        dense_pruning_method = "topK:1d_alt"
+        attention_pruning_method = "topK"
+
     hyperparams = {
-        # "dense_pruning_method": "topK:1d_alt", 
-        # "attention_pruning_method": "topK", 
-        "dense_pruning_method": "disabled", 
-        "attention_pruning_method": "disabled", 
+        "dense_pruning_method": dense_pruning_method, 
+        "attention_pruning_method": attention_pruning_method, 
+        # "dense_pruning_method": "disabled", 
+        # "attention_pruning_method": "disabled", 
         "ampere_pruning_method": "disabled",
         "initial_threshold": 1.0, 
         "final_threshold": 0.5, 
@@ -146,7 +155,8 @@ if __name__ == "__main__":
     # learning_rate = 2e-3
     num_train_epochs = args.epochs 
     logging_steps = epoch_steps
-    eval_steps = int(epoch_steps * num_train_epochs / 4)   # eval 4 times
+    eval_steps = int(epoch_steps * num_train_epochs / 8)   # eval 8 times
+    # eval_steps = int(epoch_steps*5)   # eval every 5 epochs
     print("eval steps", eval_steps)
     print("batch_size", batch_size)
     print("epoch_steps", epoch_steps)
@@ -278,3 +288,31 @@ if __name__ == "__main__":
     print(results)
     
     print("done")
+
+
+    if args.prune:
+        print("evaluating pruning")
+
+        print("compiling")
+        mpc.compile_model(trainer.model)
+
+        print("optimizing model")
+        from nn_pruning.inference_model_patcher import optimize_model
+
+        pruned_gptneo_model = optimize_model(trainer.model, "dense")
+
+        size_diff = pruned_gptneo_model.num_parameters() / gptneo_model.num_parameters()
+
+        print(f"reduced model to {size_diff} of original size")
+        
+        trainer = PruningTrainer(
+            sparse_args=sparse_args,
+            args=args,
+            model=pruned_gptneo_model,
+            train_dataset=wikisql_train,
+            eval_dataset=wikisql_validation,
+        )
+
+        print("pruned evaluation")
+
+        trainer.evaluate()
