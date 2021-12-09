@@ -199,6 +199,8 @@ def struct_from_config(config):
         print("structure finding issues - default to gpt neo")
         print(config)
         print(type(config))
+        print(hasattr(config, "config_class"))
+        print(hasattr(config, "model_type"))
         structure = GPTNeoStructure 
 
     return structure

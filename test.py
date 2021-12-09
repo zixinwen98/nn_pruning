@@ -305,8 +305,7 @@ if __name__ == "__main__":
 
         print(f"reduced model to {size_diff} of original size")
         
-        trainer = PruningTrainer(
-            sparse_args=sparse_args,
+        trainer = Trainer(
             args=training_args,
             model=pruned_gptneo_model,
             train_dataset=wikisql_train,
@@ -315,4 +314,7 @@ if __name__ == "__main__":
 
         print("pruned evaluation")
 
-        trainer.evaluate()
+        pruned_results = trainer.evaluate()
+        print(pruned_results)
+
+        print("done")
