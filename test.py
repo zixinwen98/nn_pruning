@@ -171,7 +171,7 @@ if __name__ == "__main__":
     else:
         output_dir = os.path.join(args.save_path, "checkpoints")
 
-    args = TrainingArguments(
+    training_args = TrainingArguments(
         output_dir=output_dir,
         # output_dir=None,
         # evaluation_strategy="epoch",
@@ -267,7 +267,7 @@ if __name__ == "__main__":
 
     trainer = PruningTrainer(
         sparse_args=sparse_args,
-        args=args,
+        args=training_args,
         model=gptneo_model,
         train_dataset=wikisql_train,
         eval_dataset=wikisql_validation,
@@ -307,7 +307,7 @@ if __name__ == "__main__":
         
         trainer = PruningTrainer(
             sparse_args=sparse_args,
-            args=args,
+            args=training_args,
             model=pruned_gptneo_model,
             train_dataset=wikisql_train,
             eval_dataset=wikisql_validation,

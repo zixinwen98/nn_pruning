@@ -150,7 +150,6 @@ class T5Structure(ModelStructure):
 
 
 class GPTNeoStructure(ModelStructure):
-    # PATTERN_PREFIX = "bert.encoder.layer.[0-9]+."
     PATTERN_PREFIX = "transformer.h.[0-9]+."
     LAYER_PATTERNS = dict(
         query="attn.attention.q_proj",
@@ -198,6 +197,8 @@ def struct_from_config(config):
     if structure is None:
         # raise ModelStructureNotFound(f"Model config does not match any of the defined structures.")
         print("structure finding issues - default to gpt neo")
+        print(config)
+        print(type(config))
         structure = GPTNeoStructure 
 
     return structure

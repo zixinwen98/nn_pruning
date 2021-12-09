@@ -261,7 +261,7 @@ def optimize_model(model, mode, clone=True):
                         params[name][:, output_mask] = 0
 
     # Create a model patcher
-    mp = InferenceModelPatcher(prune_heads=True, mode=mode)
+    mp = InferenceModelPatcher(prune_heads=False, mode=mode)
     pattern_prefix = model_structure.PATTERN_PREFIX
     for i, pattern in enumerate(model_structure.FFN_LAYERS):
         pattern_name = (pattern_prefix + model_structure.LAYER_PATTERNS[pattern]).replace(".", "\\.")
