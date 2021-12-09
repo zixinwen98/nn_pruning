@@ -181,6 +181,7 @@ name2struct = {
     "bert": BertStructure,
     "bart": BartStructure,
     "t5": T5Structure,
+    "gpt_neo": GPTNeoStructure
 }
 
 class ModelStructureNotFound(RuntimeError):
@@ -195,13 +196,7 @@ def struct_from_config(config):
         structure = name2struct.get(config.model_type)
 
     if structure is None:
-        # raise ModelStructureNotFound(f"Model config does not match any of the defined structures.")
-        print("structure finding issues - default to gpt neo")
-        print(config)
-        print(type(config))
-        print(hasattr(config, "config_class"))
-        print(hasattr(config, "model_type"))
-        structure = GPTNeoStructure 
+        raise ModelStructureNotFound(f"Model config does not match any of the defined structures.")
 
     return structure
 
