@@ -258,5 +258,9 @@ if __name__ == "__main__":
     print("training")
     trainer.train()
 
-    # print("evaluating")
-    trainer.evaluate()
+    print("evaluating")
+    results = trainer.evaluate()
+    print("results")
+    print(results)
+    
+    print("done")
