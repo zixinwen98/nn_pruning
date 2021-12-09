@@ -148,6 +148,9 @@ if __name__ == "__main__":
     logging_steps = epoch_steps
     eval_steps = int(epoch_steps * num_train_epochs / 4)   # eval 4 times
     print("eval steps", eval_steps)
+    print("batch_size", batch_size)
+    print("epoch_steps", epoch_steps)
+    print("n_gpu", n_gpu)
     # warmup for 10% of training steps
     warmup_steps = logging_steps * num_train_epochs * 0.1  # 10 %
 
