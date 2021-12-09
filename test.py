@@ -1,7 +1,7 @@
 import torch
 import datasets
 import transformers
-
+import os
 import argparse
 
 parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
@@ -10,10 +10,10 @@ parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 parser.add_argument('--dataset_path', default=None, help='location of data corpus')
 parser.add_argument('--tokenizer_path', required=True,  help='location of tokenizer')
 parser.add_argument('--model_path', required=True, help='location of model')
+parser.add_argument('--save_path', default=None, help='location of save model')
 
 parser.add_argument('--batch_size', required=True, type=int, help='batch size')
 parser.add_argument('--epochs', default=20, type=int, help='epochs')
-
 
 parser.add_argument('--train_samples', default=None, type=int, help='number of training samples to use')
 parser.add_argument('--valid_samples', default=None, type=int, help='number of validation samples to use')
@@ -135,26 +135,34 @@ if __name__ == "__main__":
 
     from transformers import TrainingArguments
 
+    learning_rate = 2e-4
+    n_gpu = torch.cuda.device_count()
+    batch_size = args.batch_size
+    epoch_steps = len(wikisql_train) // (batch_size*n_gpu)
+     
     # batch_size = 16
     # batch_size = 1
-    batch_size = args.batch_size
     # learning_rate = 2e-6
-    learning_rate = 2e-4
     # learning_rate = 2e-3
     num_train_epochs = args.epochs 
-    logging_steps = len(wikisql_train) // batch_size
-    eval_steps = int((len(wikisql_train) // batch_size) * num_train_epochs / 4)   # eval 4 times
+    logging_steps = epoch_steps
+    eval_steps = int(epoch_steps * num_train_epochs / 4)   # eval 4 times
     print("eval steps", eval_steps)
     # warmup for 10% of training steps
     warmup_steps = logging_steps * num_train_epochs * 0.1  # 10 %
 
+    save_strategy = "steps"
+    if args.save_path is None:
+        save_strategy = "no"
+
     args = TrainingArguments(
-        output_dir="checkpoints",
+        output_dir=os.path.join(args.save_path, "checkpoints"),
         # output_dir=None,
         # evaluation_strategy="epoch",
         evaluation_strategy="steps",
         eval_steps= eval_steps,
-        save_strategy="no",
+        save_strategy=save_strategy,
+        save_steps = eval_steps,
         # gradient_accumulation_steps=1,
         # eval_accumulation_steps=10,
         eval_accumulation_steps=2,
@@ -162,7 +170,7 @@ if __name__ == "__main__":
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
         learning_rate=learning_rate,
-        weight_decay=0.01,
+        weight_decay=0.1,
         warmup_steps=warmup_steps,
         # weight_decay=1e-4,
         logging_steps=logging_steps,
