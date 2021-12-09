@@ -154,9 +154,12 @@ if __name__ == "__main__":
     save_strategy = "steps"
     if args.save_path is None:
         save_strategy = "no"
+        output_dir = "checkpoints"
+    else:
+        output_dir = os.path.join(args.save_path, "checkpoints")
 
     args = TrainingArguments(
-        output_dir=os.path.join(args.save_path, "checkpoints"),
+        output_dir=output_dir,
         # output_dir=None,
         # evaluation_strategy="epoch",
         evaluation_strategy="steps",
