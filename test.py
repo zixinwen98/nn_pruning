@@ -14,8 +14,11 @@ import torch
 # from transformers import AutoModelForCausalLM, AutoConfig
 # from transformers import AutoConfig
 from nn_pruning.patch_coordinator import ModelPatchingCoordinator
+from nn_pruning.inference_model_patcher import optimize_model
 from model import GPTNeoForCausalLM
 import numpy as np
+import copy
+from torch import nn
 
 parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 
@@ -93,18 +96,12 @@ if __name__ == "__main__":
             """
             outputs = model(**inputs)
 
-            # print(inputs.keys())
-            # print(outputs.keys())
-            # 0/0
             labels = inputs["labels"]
             logits = outputs["logits"]
             logits = torch.argmax(logits, axis=-1)
-            # acc = (logits[:] == labels[:]).sum(axis=1, keepdims=True) == labels.shape[1]
             acc = (logits[:] == labels[:]).sum(axis=1, keepdims=True)
             correct_labels = acc.sum() / (labels.shape[0] * labels.shape[1])
             acc = (acc == labels.shape[1]).sum() / labels.shape[0]
-
-            # return {"accuracy": acc.sum() / labels.shape[0]}
 
             # Save past state if it exists
             # TODO: this needs to be fixed and made cleaner later.
@@ -129,10 +126,11 @@ if __name__ == "__main__":
             print(f"Saving model checkpoint to {output_dir}")
             self.model.save_pretrained(output_dir, state_dict=state_dict)
             print("Compiling model")
-            compiled_model = mpc.compile_model(self.model)
+            model_copy = copy.deepcopy(self.model)
+            mpc.compile_model(model_copy)
             compiled_dir = os.path.join(output_dir, "compiled")
             print(f"Saving compiled model checkpoint to {compiled_dir}")
-            compiled_model.save_pretrained(compiled_dir, state_dict=state_dict)
+            model_copy.save_pretrained(compiled_dir, state_dict=state_dict)
 
             if self.tokenizer is not None:
                 self.tokenizer.save_pretrained(output_dir)
@@ -154,8 +152,6 @@ if __name__ == "__main__":
     hyperparams = {
         "dense_pruning_method": dense_pruning_method, 
         "attention_pruning_method": attention_pruning_method, 
-        # "dense_pruning_method": "disabled", 
-        # "attention_pruning_method": "disabled", 
         "ampere_pruning_method": "disabled",
         "initial_threshold": 1.0, 
         "final_threshold": 0.5, 
@@ -238,14 +234,10 @@ if __name__ == "__main__":
         logit_names="logits", 
         teacher_constructor=None)
 
-    # gptneo_model = AutoModelForCausalLM.from_pretrained(gptneo_name).to(device)
-    # config = AutoConfig.from_pretrained(gptneo_name)
-    # gptneo_model = GPTNeoForCausalLM(config)
     gptneo_model = GPTNeoForCausalLM.from_pretrained(gptneo_name).to(device)
 
 
 
-    from torch import nn
 
     if args.train:
         with torch.no_grad():
@@ -257,15 +249,6 @@ if __name__ == "__main__":
             gptneo_model.set_output_embeddings(decoder)
 
         mpc.patch_model(gptneo_model)
-
-        # for module in gptneo_model.modules():
-        #     print(module)
-        # 0/0
-
-
-    # from datasets import load_metric
-
-    # accuracy_score = load_metric('accuracy')
 
     def compute_metrics(pred):
         predictions, labels = pred
@@ -301,6 +284,7 @@ if __name__ == "__main__":
     trainer.set_patch_coordinator(mpc)
 
     if args.train:
+
         print("training")
         trainer.train()
 
@@ -310,11 +294,6 @@ if __name__ == "__main__":
         print(results)
 
     if args.evaluate:
-        # from nn_pruning.inference_model_patcher import optimize_model
-
-        mpc.patch_model(gptneo_model)
-        # pruned_gptneo_model = optimize_model(trainer.model, "dense")
-        # mpc.compile_model(gptneo_model)
         trainer = PruningTrainer(
             sparse_args=sparse_args,
             args=training_args,
@@ -351,7 +330,6 @@ if __name__ == "__main__":
         mpc.compile_model(trainer.model)
 
         print("optimizing model")
-        from nn_pruning.inference_model_patcher import optimize_model
 
         pruned_gptneo_model = optimize_model(trainer.model, "dense")
 
