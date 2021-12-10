@@ -125,12 +125,13 @@ if __name__ == "__main__":
             
             print(f"Saving model checkpoint to {output_dir}")
             self.model.save_pretrained(output_dir, state_dict=state_dict)
-            print("Compiling model")
-            model_copy = copy.deepcopy(self.model)
-            mpc.compile_model(model_copy)
-            compiled_dir = os.path.join(output_dir, "compiled")
-            print(f"Saving compiled model checkpoint to {compiled_dir}")
-            model_copy.save_pretrained(compiled_dir, state_dict=state_dict)
+            if args.prune:
+                print("Compiling model")
+                model_copy = copy.deepcopy(self.model)
+                mpc.compile_model(model_copy)
+                compiled_dir = os.path.join(output_dir, "compiled")
+                print(f"Saving compiled model checkpoint to {compiled_dir}")
+                model_copy.save_pretrained(compiled_dir, state_dict=state_dict)
 
             if self.tokenizer is not None:
                 self.tokenizer.save_pretrained(output_dir)
@@ -146,8 +147,10 @@ if __name__ == "__main__":
     dense_pruning_method = "disabled"
     attention_pruning_method = "disabled"
     if args.prune:
-        dense_pruning_method = "topK:1d_alt"
-        attention_pruning_method = "topK"
+        # dense_pruning_method = "topK:1d_alt"
+        # attention_pruning_method = "topK"
+        dense_pruning_method = "magnitude"
+        attention_pruning_method = "magnitude"
 
     hyperparams = {
         "dense_pruning_method": dense_pruning_method, 
