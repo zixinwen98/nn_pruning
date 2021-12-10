@@ -17,6 +17,8 @@ parser.add_argument('--batch_size', required=True, type=int, help='batch size')
 parser.add_argument('--epochs', default=20, type=int, help='epochs')
 
 parser.add_argument('--prune', action='store_true', help='simple prune test')
+parser.add_argument('--train', action='store_true', help='train the net')
+parser.add_argument('--evaluate', action='store_true', help='evaluate the net')
 
 parser.add_argument('--train_samples', default=None, type=int, help='number of training samples to use')
 parser.add_argument('--valid_samples', default=None, type=int, help='number of validation samples to use')
@@ -57,6 +59,7 @@ if __name__ == "__main__":
 
     wikisql_train = get_dataset(args.tokenizer_path, "", "train", args.train_samples, 512, 512, False)
     wikisql_validation = get_dataset(args.tokenizer_path, "", "validation", args.valid_samples, 512, 512, False)
+    wikisql_test = get_dataset(args.tokenizer_path, "", "test", args.valid_samples, 512, 512, False)
 
     # wikisql_train = get_dataset("train", 20, 512, 512, False)
     # wikisql_validation = get_dataset("train", 20, 512, 512, False)
@@ -271,23 +274,38 @@ if __name__ == "__main__":
         model=gptneo_model,
         train_dataset=wikisql_train,
         eval_dataset=wikisql_validation,
-        # tokenizer=tokenizer,
-        # compute_metrics=compute_metrics,
-        # load_best_model_at_end=True,
-        # metric_for_best_model="accuracy"
     )
 
     trainer.set_patch_coordinator(mpc)
 
-    print("training")
-    trainer.train()
+    if args.train:
+        print("training")
+        trainer.train()
 
-    print("evaluating")
-    results = trainer.evaluate()
-    print("results")
-    print(results)
+        print("evaluating")
+        results = trainer.evaluate()
+        print("results")
+        print(results)
+
+    if args.evaluate:
+        print("evaluating validation set ")
+        results = trainer.evaluate()
+        print("results")
+        print(results)
+        
+        trainer = PruningTrainer(
+            sparse_args=sparse_args,
+            args=training_args,
+            model=gptneo_model,
+            train_dataset=wikisql_train,
+            eval_dataset=wikisql_test,
+        )
+
+        print("evaluating test set ")
+        results = trainer.evaluate()
+        print("results")
+        print(results)
     
-    print("done")
 
 
     if args.prune:
@@ -305,12 +323,15 @@ if __name__ == "__main__":
 
         print(f"reduced model to {size_diff} of original size")
         
-        trainer = Trainer(
+        trainer = PruningTrainer(
+            sparse_args=sparse_args,
             args=training_args,
             model=pruned_gptneo_model,
             train_dataset=wikisql_train,
             eval_dataset=wikisql_validation,
         )
+
+        trainer.set_patch_coordinator(mpc)
 
         print("pruned evaluation")
 
@@ -318,3 +339,6 @@ if __name__ == "__main__":
         print(pruned_results)
 
         print("done")
+
+        
+    print("done")
