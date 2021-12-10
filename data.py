@@ -69,8 +69,8 @@ class wikisql(Dataset):
         source = self.tokenizer.batch_encode_plus([input_], max_length=self.input_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
         
-        targets = self.tokenizer.batch_encode_plus([target_], max_length=self.output_length, 
-        # targets = self.tokenizer.batch_encode_plus([input_ + target_], max_length=self.output_length, 
+        # targets = self.tokenizer.batch_encode_plus([target_], max_length=self.output_length, 
+        targets = self.tokenizer.batch_encode_plus([input_ + target_], max_length=self.output_length, 
         # targets = self.tokenizer.batch_encode_plus(["S " + target_], max_length=self.output_length, 
                                                      padding='max_length', truncation=True, return_tensors="pt")
 

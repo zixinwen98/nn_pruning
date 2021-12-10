@@ -4,6 +4,18 @@ import datasets
 import transformers
 import os
 import argparse
+from transformers import Trainer
+from nn_pruning.sparse_trainer import SparseTrainer
+from nn_pruning.patch_coordinator import SparseTrainingArguments
+from datasets import load_dataset
+from data import get_dataset
+from transformers import TrainingArguments
+import torch 
+# from transformers import AutoModelForCausalLM, AutoConfig
+# from transformers import AutoConfig
+from nn_pruning.patch_coordinator import ModelPatchingCoordinator
+from model import GPTNeoForCausalLM
+import numpy as np
 
 parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 
@@ -34,7 +46,6 @@ if __name__ == "__main__":
     transformers.logging.set_verbosity_error()
     print(f"Using transformers v{transformers.__version__} and datasets v{datasets.__version__} and torch v{torch.__version__}")
 
-    from datasets import load_dataset
 
     # wikisql = load_dataset("wikisql")
     # print(len(wikisql["train"]))
@@ -55,7 +66,6 @@ if __name__ == "__main__":
 
     # wikisql_enc = wikisql.map(tokenize_and_encode, batched=True)
 
-    from data import get_dataset
 
     wikisql_train = get_dataset(args.tokenizer_path, "", "train", args.train_samples, 512, 512, False)
     wikisql_validation = get_dataset(args.tokenizer_path, "", "validation", args.valid_samples, 512, 512, False)
@@ -70,8 +80,6 @@ if __name__ == "__main__":
 
 
 
-    from transformers import Trainer
-    from nn_pruning.sparse_trainer import SparseTrainer
 
     class PruningTrainer(SparseTrainer, Trainer):
         def __init__(self, sparse_args, *args, **kwargs):
@@ -112,8 +120,28 @@ if __name__ == "__main__":
             # print(loss)
             return (loss, outputs) if return_outputs else loss
 
+        
+        def _save(self, output_dir = None, state_dict=None):
+            # If we are executing this function, we are the process zero, so we don't check for that.
+            output_dir = output_dir if output_dir is not None else self.args.output_dir
+            os.makedirs(output_dir, exist_ok=True)
+            
+            print(f"Saving model checkpoint to {output_dir}")
+            self.model.save_pretrained(output_dir, state_dict=state_dict)
+            print("Compiling model")
+            compiled_model = mpc.compile_model(self.model)
+            compiled_dir = os.path.join(output_dir, "compiled")
+            print(f"Saving compiled model checkpoint to {compiled_dir}")
+            compiled_model.save_pretrained(compiled_dir, state_dict=state_dict)
 
-    from nn_pruning.patch_coordinator import SparseTrainingArguments
+            if self.tokenizer is not None:
+                self.tokenizer.save_pretrained(output_dir)
+
+            # Good practice: save your training arguments together with the trained model
+            # torch.save(self.args, os.path.join(output_dir, TRAINING_ARGS_NAME))
+            torch.save(self.args, os.path.join(output_dir, "training_args.bin"))
+
+
 
     sparse_args = SparseTrainingArguments()
 
@@ -144,27 +172,24 @@ if __name__ == "__main__":
         else:
             print(f"sparse_args does not have argument {k}")
 
-    from transformers import TrainingArguments
 
     learning_rate = 2e-4
     n_gpu = torch.cuda.device_count()
     batch_size = args.batch_size
     epoch_steps = len(wikisql_train) // (batch_size*n_gpu)
      
-    # batch_size = 16
-    # batch_size = 1
-    # learning_rate = 2e-6
-    # learning_rate = 2e-3
     num_train_epochs = args.epochs 
     logging_steps = epoch_steps
-    eval_steps = int(epoch_steps * num_train_epochs / 12)   # eval 12 times
-    # eval_steps = int(epoch_steps*5)   # eval every 5 epochs
+    # warmup for 10% of training steps
+    warmup_steps = logging_steps * num_train_epochs * 0.1  # 10 %
+    # eval_steps = int(epoch_steps * num_train_epochs / 12)   # eval 12 times
+    eval_steps = int(epoch_steps*5)   # eval every 5 epochs
+
+
     print("eval steps", eval_steps)
     print("batch_size", batch_size)
     print("epoch_steps", epoch_steps)
     print("n_gpu", n_gpu)
-    # warmup for 10% of training steps
-    warmup_steps = logging_steps * num_train_epochs * 0.1  # 10 %
 
     save_strategy = "steps"
     if args.save_path is None:
@@ -203,11 +228,6 @@ if __name__ == "__main__":
 
 
 
-    import torch 
-    # from transformers import AutoModelForCausalLM, AutoConfig
-    from transformers import AutoConfig
-    from nn_pruning.patch_coordinator import ModelPatchingCoordinator
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     mpc = ModelPatchingCoordinator(
@@ -221,8 +241,8 @@ if __name__ == "__main__":
     # gptneo_model = AutoModelForCausalLM.from_pretrained(gptneo_name).to(device)
     # config = AutoConfig.from_pretrained(gptneo_name)
     # gptneo_model = GPTNeoForCausalLM(config)
-    from model import GPTNeoForCausalLM
     gptneo_model = GPTNeoForCausalLM.from_pretrained(gptneo_name).to(device)
+
 
 
     from torch import nn
@@ -238,12 +258,14 @@ if __name__ == "__main__":
 
         mpc.patch_model(gptneo_model)
 
+        # for module in gptneo_model.modules():
+        #     print(module)
+        # 0/0
 
 
-    import numpy as np
-    from datasets import load_metric
+    # from datasets import load_metric
 
-    accuracy_score = load_metric('accuracy')
+    # accuracy_score = load_metric('accuracy')
 
     def compute_metrics(pred):
         predictions, labels = pred
@@ -290,6 +312,7 @@ if __name__ == "__main__":
     if args.evaluate:
         # from nn_pruning.inference_model_patcher import optimize_model
 
+        mpc.patch_model(gptneo_model)
         # pruned_gptneo_model = optimize_model(trainer.model, "dense")
         # mpc.compile_model(gptneo_model)
         trainer = PruningTrainer(
