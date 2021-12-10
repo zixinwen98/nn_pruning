@@ -116,7 +116,6 @@ if __name__ == "__main__":
     from nn_pruning.patch_coordinator import SparseTrainingArguments
 
     sparse_args = SparseTrainingArguments()
-    sparse_args
 
     dense_pruning_method = "disabled"
     attention_pruning_method = "disabled"
@@ -158,7 +157,7 @@ if __name__ == "__main__":
     # learning_rate = 2e-3
     num_train_epochs = args.epochs 
     logging_steps = epoch_steps
-    eval_steps = int(epoch_steps * num_train_epochs / 8)   # eval 8 times
+    eval_steps = int(epoch_steps * num_train_epochs / 12)   # eval 12 times
     # eval_steps = int(epoch_steps*5)   # eval every 5 epochs
     print("eval steps", eval_steps)
     print("batch_size", batch_size)
@@ -228,15 +227,16 @@ if __name__ == "__main__":
 
     from torch import nn
 
-    with torch.no_grad():
-        # gptneo_model.transformer.wte.weight.data.normal_(mean=0.0, std=0.02)
+    if args.train:
+        with torch.no_grad():
+            # gptneo_model.transformer.wte.weight.data.normal_(mean=0.0, std=0.02)
 
-        embed_shape = gptneo_model.transformer.wte.weight.shape
-        decoder = nn.Linear(embed_shape[1], embed_shape[0], bias=False)
-        decoder.weight = gptneo_model.transformer.wte.weight  # Tied weights with input
-        gptneo_model.set_output_embeddings(decoder)
+            embed_shape = gptneo_model.transformer.wte.weight.shape
+            decoder = nn.Linear(embed_shape[1], embed_shape[0], bias=False)
+            decoder.weight = gptneo_model.transformer.wte.weight  # Tied weights with input
+            gptneo_model.set_output_embeddings(decoder)
 
-    mpc.patch_model(gptneo_model)
+        mpc.patch_model(gptneo_model)
 
 
 
@@ -288,6 +288,18 @@ if __name__ == "__main__":
         print(results)
 
     if args.evaluate:
+        # from nn_pruning.inference_model_patcher import optimize_model
+
+        # pruned_gptneo_model = optimize_model(trainer.model, "dense")
+        # mpc.compile_model(gptneo_model)
+        trainer = PruningTrainer(
+            sparse_args=sparse_args,
+            args=training_args,
+            model=gptneo_model,
+            train_dataset=wikisql_train,
+            eval_dataset=wikisql_validation,
+        )
+        trainer.set_patch_coordinator(mpc)
         print("evaluating validation set ")
         results = trainer.evaluate()
         print("results")
@@ -300,6 +312,7 @@ if __name__ == "__main__":
             train_dataset=wikisql_train,
             eval_dataset=wikisql_test,
         )
+        trainer.set_patch_coordinator(mpc)
 
         print("evaluating test set ")
         results = trainer.evaluate()

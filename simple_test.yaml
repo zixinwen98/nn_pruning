@@ -39,8 +39,8 @@ search:
     sku: G1
     command:
     # full testing
-    # -  python test.py --epochs=100 --train --evaluate --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
-    -  python test.py --epochs=100 --prune --train --evaluate --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/pruned
+    # -  python test.py --epochs=100 --train  --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
+    -  python test.py --epochs=100 --prune --train --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/pruned_testoutput
 
     # for quick testing
     # -  python test.py --epochs=100 --train  --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
