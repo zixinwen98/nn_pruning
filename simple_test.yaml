@@ -40,7 +40,7 @@ search:
     command:
     # full testing
     # -  python test.py --epochs=100 --train  --batch_size=16  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --save_path=/mnt/output/gpt_neo/vanilla
-    -  python test.py --epochs=100 --prune --train --batch_size=16  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --save_path=/mnt/output/gpt_neo/pruned_magnitude
+    -  python test.py --epochs=100 --prune --train --batch_size=16  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --save_path=/mnt/output/gpt_neo/pruned_topk_lesslr
 
     # for quick testing
     # -  python test.py --epochs=100 --train  --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/

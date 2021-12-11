@@ -20,6 +20,9 @@ import numpy as np
 import copy
 from torch import nn
 
+torch.manual_seed(0)
+np.random.seed(0)
+
 parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 
 
@@ -147,10 +150,10 @@ if __name__ == "__main__":
     dense_pruning_method = "disabled"
     attention_pruning_method = "disabled"
     if args.prune:
-        # dense_pruning_method = "topK:1d_alt"
-        # attention_pruning_method = "topK"
-        dense_pruning_method = "magnitude"
-        attention_pruning_method = "magnitude"
+        dense_pruning_method = "topK:1d_alt"
+        attention_pruning_method = "topK"
+        # dense_pruning_method = "magnitude"
+        # attention_pruning_method = "magnitude"
 
     hyperparams = {
         "dense_pruning_method": dense_pruning_method, 
@@ -172,7 +175,8 @@ if __name__ == "__main__":
             print(f"sparse_args does not have argument {k}")
 
 
-    learning_rate = 2e-4
+    # learning_rate = 2e-4
+    learning_rate = 2e-6
     n_gpu = torch.cuda.device_count()
     batch_size = args.batch_size
     epoch_steps = len(wikisql_train) // (batch_size*n_gpu)
