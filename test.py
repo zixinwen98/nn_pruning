@@ -175,8 +175,8 @@ if __name__ == "__main__":
             print(f"sparse_args does not have argument {k}")
 
 
-    # learning_rate = 2e-4
-    learning_rate = 2e-6
+    learning_rate = 2e-4
+    # learning_rate = 2e-6
     n_gpu = torch.cuda.device_count()
     batch_size = args.batch_size
     epoch_steps = len(wikisql_train) // (batch_size*n_gpu)
