@@ -33,8 +33,8 @@ parser.add_argument('--model_path', required=True, help='location of model')
 parser.add_argument('--output_dir', default=None, help='location of output dir')
 parser.add_argument('--save_model', action='store_true', help='save the net')
 
-parser.add_argument('--batch_size', required=True, type=int, help='batch size')
-parser.add_argument('--epochs', default=20, type=int, help='epochs')
+parser.add_argument('--batch_size', default=16, type=int, help='batch size')
+parser.add_argument('--epochs', default=100, type=int, help='epochs')
 
 # parser.add_argument('--prune', action='store_true', help='simple prune test')
 parser.add_argument('--dense_pruning_method', default="disabled", help='dense pruning method', choices=('disabled', 'topk', 'topk:1d_alt', 'sigmoied_threshold'))
@@ -271,6 +271,7 @@ if __name__ == "__main__":
         model=gptneo_model,
         train_dataset=wikisql_train,
         eval_dataset=wikisql_validation,
+        callbacks=[LogDfCallback]
     )
 
     trainer.set_patch_coordinator(mpc)
