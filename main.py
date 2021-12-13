@@ -143,10 +143,15 @@ if __name__ == "__main__":
         initial_threshold = 0.001
         final_threshold = .001
 
+    regularization_final_lambda = 0
+    if args.regularization != "disabled":
+        regularization_final_lambda = 1
+
     hyperparams = {
         "dense_pruning_method": args.dense_pruning_method, 
         "attention_pruning_method": args.attention_pruning_method, 
         "regularization": args.regularization,
+        "regularization_final_lambda": regularization_final_lambda,
         "ampere_pruning_method": "disabled",
         "initial_threshold": initial_threshold, 
         "final_threshold": final_threshold, 
@@ -156,6 +161,7 @@ if __name__ == "__main__":
         "attention_block_cols":32,
         "attention_output_with_dense": 0,
         "save_uniqueness": args.dense_pruning_method == "threshold",
+        
     }
 
     for k,v in hyperparams.items():
