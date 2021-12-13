@@ -415,14 +415,13 @@ class MaskedLinear(ReplacementModule):
     def forward(self, input):
         masked_weights, bias = self.get_masked_weights_bias()
         # Compute output (linear layer) with masked weights
-        # output = F.linear(input, masked_weights, bias)
-
-        output = input @ masked_weights.T
 
         if self.args.save_uniqueness:
+            output = input @ masked_weights.T
+
             n_output = output.reshape(-1, output.shape[-1])
             K = n_output.T @ n_output
-            K_norm = n_output.norm(dim=0)
+            K_norm = n_output.norm(dim=0) + 1e-6
             K = K / (K_norm[:, None] * K_norm[None, :])
 
             K =  (K + 1) / 2
@@ -430,7 +429,12 @@ class MaskedLinear(ReplacementModule):
             W_norm = W_norm[:, None] * W_norm[None, :]
             self.uniqueness = torch.sum(K * W_norm) / (K.shape[0]**2)
 
-        return output + bias
+            if bias is not None:
+                return output + bias
+            else:
+                return output
+        else:
+            return F.linear(input, masked_weights, bias)
 
     def get_sparsity_info(self):
         ret = {"numel": self.weight.numel(), "nnz": self.mask_nnz}
