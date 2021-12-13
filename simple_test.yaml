@@ -54,7 +54,7 @@ search:
     - name: prunemethod
       spec: discrete
       # values: ["topK","sigmoied_threshold"]
-      values: ["topK"]
+      values: ["topK:1d_alt"]
     # - name: densemethod
     #   spec: discrete
     #   values: ["disabled","topk","sigmoied_threshold"]
