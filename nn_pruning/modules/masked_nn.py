@@ -97,6 +97,8 @@ class GenericLinearPruningContextModule(PatcherContextModule):
             module_regu = torch.norm(torch.sigmoid(mask_scores), p=1) / numel
         elif method == "l0":
             module_regu = torch.sigmoid(mask_scores - 2 / 3 * numpy.log(0.1 / 1.1)).sum() / numel
+        elif method == "uniqueness":
+            module_regu = 0 # handled in maskedlinear
         else:
             assert False
 

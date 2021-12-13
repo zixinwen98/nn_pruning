@@ -39,7 +39,7 @@ parser.add_argument('--epochs', default=100, type=int, help='epochs')
 # parser.add_argument('--prune', action='store_true', help='simple prune test')
 parser.add_argument('--dense_pruning_method', default="disabled", help='dense pruning method', choices=('disabled', 'topK', 'topk:1d_alt', 'threshold', 'sigmoied_threshold'))
 parser.add_argument('--attention_pruning_method', default="disabled", help='attention pruning method', choices=('disabled', 'topK', 'topk:1d_alt', 'threshold', 'sigmoied_threshold'))
-parser.add_argument('--regularization', default="disabled", help='regularization method', choices=('disabled', 'l0', 'l1'))
+parser.add_argument('--regularization', default="disabled", help='regularization method', choices=('disabled', 'l0', 'l1', "uniqueness"))
 parser.add_argument('--train', action='store_true', help='train the net')
 parser.add_argument('--evaluate', action='store_true', help='evaluate the net')
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         "attention_block_rows":32,
         "attention_block_cols":32,
         "attention_output_with_dense": 0,
-        "save_uniqueness": args.dense_pruning_method == "threshold",
+        "save_uniqueness": args.regularization == "uniqueness",
         
     }
 

@@ -461,7 +461,7 @@ class ModelPatchingCoordinator:
 
         info = {}
 
-        regul_modes = ["l1", "l0"]
+        regul_modes = ["l1", "l0", "uniqueness"]
         if mode in regul_modes:
             threshold = self.patcher_context.get_context_data("threshold")
 
@@ -481,7 +481,7 @@ class ModelPatchingCoordinator:
             elif isinstance(module, MaskedLinear):
                 module_nnz_info = module.get_sparsity_info()
                 nummod = 0
-                if module.args.save_uniqueness:
+                if module.args.save_uniqueness and mode == "uniqueness":
                     module_regu = module.uniqueness
             elif hasattr(module, "regularization"):
                 module_regu = module.regularization()
