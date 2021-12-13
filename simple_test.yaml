@@ -53,7 +53,7 @@ search:
   params:
     - name: prunemethod
       spec: discrete
-      values: ["topk","sigmoied_threshold"]
+      values: ["topK","sigmoied_threshold"]
     # - name: densemethod
     #   spec: discrete
     #   values: ["disabled","topk","sigmoied_threshold"]
