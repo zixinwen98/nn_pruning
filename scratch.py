@@ -16,7 +16,8 @@ tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neo-125M")
 # 0/0
 # model = AutoModelForCausalLM.from_pretrained("EleutherAI/gpt-neo-125M")
 
-config = AutoConfig.from_pretrained("EleutherAI/gpt-neo-125M")
+# config = AutoConfig.from_pretrained("EleutherAI/gpt-neo-125M")
+config = AutoConfig.from_pretrained("bert-base-uncased")
 model = AutoModelForCausalLM.from_config(config)
 
 # model.save_pretrained("/home/misantac/teamdrive/inflimitmsr/gpt_neo/")

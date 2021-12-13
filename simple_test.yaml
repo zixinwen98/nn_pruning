@@ -64,4 +64,4 @@ search:
     - name: regularization
       spec: discrete
       # values: ["disabled","l0","l1"]
-      values: ["l1"]
+      values: ["disabled"]
