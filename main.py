@@ -104,6 +104,14 @@ if __name__ == "__main__":
             # We don't use .loss here since the model may return tuples instead of ModelOutput.
             loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
             regu_loss, lamb, info = self.patch_coordinator.regularization_loss(model)
+            for kind, values in info.items():
+                if kind == "total":
+                    suffix = ""
+                else:
+                    suffix = "_" + kind
+
+                for k, v in values.items():
+                    self.metrics[k + suffix] += float(v)
             # self.metrics["ce_loss"] += float(loss.mean())
             self.metrics["accuracy"] += acc
             self.metrics["correct_labels"] += correct_labels
