@@ -103,10 +103,13 @@ if __name__ == "__main__":
 
             # We don't use .loss here since the model may return tuples instead of ModelOutput.
             loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
+            regu_loss, lamb, info = self.patch_coordinator.regularization_loss(model)
             # self.metrics["ce_loss"] += float(loss.mean())
             self.metrics["accuracy"] += acc
             self.metrics["correct_labels"] += correct_labels
             self.loss_counter += 1
+
+            loss = loss + regu_loss * lamb
             # print(loss)
             return (loss, outputs) if return_outputs else loss
 
