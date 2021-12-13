@@ -40,7 +40,7 @@ search:
     command:
     # full testing
     # $$PT_OUTPUT_DIR
-    -  python main.py --output_dir=$$PT_OUTPUT_DIR --dense_pruning_method={prunemethod} --attention_pruning_method={prunemethod} --regularization={regularization} --train  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
+    -  python main.py --output_dir=$$PT_OUTPUT_DIR --dense_pruning_method={prunemethod} --attention_pruning_method=topK --regularization={regularization} --train  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
 
     # for quick testing
     # -  python main.py --epochs=100 --train  --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
