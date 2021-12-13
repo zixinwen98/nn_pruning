@@ -39,14 +39,24 @@ search:
     sku: G1
     command:
     # full testing
-    # -  python test.py --epochs=100 --train  --batch_size=16  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --save_path=/mnt/output/gpt_neo/vanilla
-    # -  python test.py --epochs=100 --prune --train --batch_size=16  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --save_path=/mnt/output/gpt_neo/pruned_topk_lesslr
-    -  python test.py --epochs=100 --prune --train --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/pruned_topk_redo
+    # $$PT_OUTPUT_DIR
+    -  python main.py --output_dir=$$PT_OUTPUT_DIR --epochs=100 --dense_pruning_method={densemethod} --attention_pruning_method={attnmethod} --regularization={regularization} --train  --batch_size=16  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
 
     # for quick testing
-    # -  python test.py --epochs=100 --train  --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
+    # -  python main.py --epochs=100 --train  --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
 
 
-    # -  python test.py --epochs=20 --batch_size=4 --prune --train_samples=20 --valid_samples=20 --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --save_path=./output
+    # -  python main.py --epochs=100 --prune --train --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=$$PT_OUTPUT_DIR
+    # -  python main.py --epochs=20 --batch_size=4 --prune --train_samples=20 --valid_samples=20 --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --save_path=./output
   type: grid
   max_trials: 1
+  params:
+    - name: densemethod
+      spec: discrete
+      values: ["disabled","topk","sigmoied_threshold"]
+    - name: attnmethod
+      spec: discrete
+      values: ["disabled","topk","sigmoied_threshold"]
+    - name: regularization
+      spec: discrete
+      values: ["disabled","l0","l1"]

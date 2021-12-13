@@ -4,7 +4,7 @@ import datasets
 import transformers
 import os
 import argparse
-from transformers import Trainer
+from transformers import Trainer, TrainerCallback
 from nn_pruning.sparse_trainer import SparseTrainer
 from nn_pruning.patch_coordinator import SparseTrainingArguments
 from datasets import load_dataset
@@ -19,6 +19,7 @@ from model import GPTNeoForCausalLM
 import numpy as np
 import copy
 from torch import nn
+import pandas as pd
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -29,12 +30,16 @@ parser = argparse.ArgumentParser(description='PyTorch GPT-Neo ft script')
 parser.add_argument('--dataset_path', default=None, help='location of data corpus')
 parser.add_argument('--tokenizer_path', required=True,  help='location of tokenizer')
 parser.add_argument('--model_path', required=True, help='location of model')
-parser.add_argument('--save_path', default=None, help='location of save model')
+parser.add_argument('--output_dir', default=None, help='location of output dir')
+parser.add_argument('--save_model', action='store_true', help='save the net')
 
 parser.add_argument('--batch_size', required=True, type=int, help='batch size')
 parser.add_argument('--epochs', default=20, type=int, help='epochs')
 
-parser.add_argument('--prune', action='store_true', help='simple prune test')
+# parser.add_argument('--prune', action='store_true', help='simple prune test')
+parser.add_argument('--dense_pruning_method', default="disabled", help='dense pruning method', choices=('disabled', 'topk', 'topk:1d_alt', 'sigmoied_threshold'))
+parser.add_argument('--attention_pruning_method', default="disabled", help='attention pruning method', choices=('disabled', 'topk', 'topk:1d_alt', 'sigmoied_threshold'))
+parser.add_argument('--regularization', default="disabled", help='regularization method', choices=('disabled', 'l0', 'l1'))
 parser.add_argument('--train', action='store_true', help='train the net')
 parser.add_argument('--evaluate', action='store_true', help='evaluate the net')
 
@@ -45,48 +50,33 @@ parser.add_argument('--valid_samples', default=None, type=int, help='number of v
 if __name__ == "__main__": 
     args = parser.parse_args()
 
-
-
+    do_prune = args.dense_pruning_method != "disabled" or args.attention_pruning_method  != "disabled"
 
     datasets.logging.set_verbosity_error()
     transformers.logging.set_verbosity_error()
     print(f"Using transformers v{transformers.__version__} and datasets v{datasets.__version__} and torch v{torch.__version__}")
 
-
-    # wikisql = load_dataset("wikisql")
-    # print(len(wikisql["train"]))
-    # 0/0
-
-
-
-    # from transformers import AutoTokenizer
-
     gptneo_name = args.model_path
     # gptneo_name = "EleutherAI/gpt-neo-125M"
     # gptneo_name = "EleutherAI/gpt-neo-2.7B"
-
-    # tokenizer = AutoTokenizer.from_pretrained(gptneo_name)
-
-    # def tokenize_and_encode(examples): 
-    #     return tokenizer(examples['question'], examples['sql']['human_readable'], max_length=512, padding="max_length")
-
-    # wikisql_enc = wikisql.map(tokenize_and_encode, batched=True)
-
 
     wikisql_train = get_dataset(args.tokenizer_path, "", "train", args.train_samples, 512, 512, False)
     wikisql_validation = get_dataset(args.tokenizer_path, "", "validation", args.valid_samples, 512, 512, False)
     wikisql_test = get_dataset(args.tokenizer_path, "", "test", args.valid_samples, 512, 512, False)
 
-    # wikisql_train = get_dataset("train", 20, 512, 512, False)
-    # wikisql_validation = get_dataset("train", 20, 512, 512, False)
-    # wikisql_validation = get_dataset("validation", None, 512, 512, False)
-    # wikisql_validation = get_dataset("validation", 200, 512, 512, False)
-    # wikisql_validation = get_dataset("validation", 20, 512, 512, False)
+    log_df = []
 
+    class LogDfCallback(TrainerCallback):
+        """
+        A bare :class:`~transformers.TrainerCallback` that just prints the logs.
+        """
 
-
-
-
+        def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+            # _ = logs.pop("total_flos", None)
+            if state.is_local_process_zero:
+                # print(logs)
+                log_df.append(metrics)
+            
     class PruningTrainer(SparseTrainer, Trainer):
         def __init__(self, sparse_args, *args, **kwargs):
             Trainer.__init__(self, *args, **kwargs)
@@ -128,7 +118,7 @@ if __name__ == "__main__":
             
             print(f"Saving model checkpoint to {output_dir}")
             self.model.save_pretrained(output_dir, state_dict=state_dict)
-            if args.prune:
+            if do_prune:
                 print("Compiling model")
                 model_copy = copy.deepcopy(self.model)
                 mpc.compile_model(model_copy)
@@ -147,17 +137,10 @@ if __name__ == "__main__":
 
     sparse_args = SparseTrainingArguments()
 
-    dense_pruning_method = "disabled"
-    attention_pruning_method = "disabled"
-    if args.prune:
-        dense_pruning_method = "topK:1d_alt"
-        attention_pruning_method = "topK"
-        # dense_pruning_method = "magnitude"
-        # attention_pruning_method = "magnitude"
-
     hyperparams = {
-        "dense_pruning_method": dense_pruning_method, 
-        "attention_pruning_method": attention_pruning_method, 
+        "dense_pruning_method": args.dense_pruning_method, 
+        "attention_pruning_method": args.attention_pruning_method, 
+        "regularization": args.regularization,
         "ampere_pruning_method": "disabled",
         "initial_threshold": 1.0, 
         "final_threshold": 0.5, 
@@ -165,7 +148,7 @@ if __name__ == "__main__":
         "final_warmup": 3,
         "attention_block_rows":32,
         "attention_block_cols":32,
-        "attention_output_with_dense": 0
+        "attention_output_with_dense": 0,
     }
 
     for k,v in hyperparams.items():
@@ -194,12 +177,14 @@ if __name__ == "__main__":
     print("epoch_steps", epoch_steps)
     print("n_gpu", n_gpu)
 
-    save_strategy = "steps"
-    if args.save_path is None:
-        save_strategy = "no"
+    save_strategy = "no"
+    if args.save_model:
+        save_strategy = "steps"
+    if args.output_dir is None:
         output_dir = "checkpoints"
     else:
-        output_dir = os.path.join(args.save_path, "checkpoints")
+        os.makedirs(args.output_dir, exist_ok=True)
+        output_dir = os.path.join(args.output_dir, "checkpoints")
 
     training_args = TrainingArguments(
         output_dir=output_dir,
@@ -300,6 +285,11 @@ if __name__ == "__main__":
         print("results")
         print(results)
 
+        if args.output_dir:
+            print("saving results")
+            log_file = os.path.join(args.output_dir, 'log.df')
+            pd.DataFrame(log_df).to_pickle(log_file)
+
     if args.evaluate:
         trainer = PruningTrainer(
             sparse_args=sparse_args,
@@ -330,7 +320,7 @@ if __name__ == "__main__":
     
 
 
-    if args.prune:
+    if do_prune:
         print("evaluating pruning")
 
         print("compiling")
