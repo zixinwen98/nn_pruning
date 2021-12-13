@@ -59,6 +59,7 @@ class RuntimeLinearPruningArgs:
     block_cols: int
     min_elements: float
     bias_mask: bool = False
+    save_uniqueness: bool = False
 
 @dataclass
 class InitDirective:
@@ -412,7 +413,21 @@ class MaskedLinear(ReplacementModule):
     def forward(self, input):
         masked_weights, bias = self.get_masked_weights_bias()
         # Compute output (linear layer) with masked weights
-        return F.linear(input, masked_weights, bias)
+        # output = F.linear(input, masked_weights, bias)
+
+        n_output = input @ masked_weights.T
+
+        if self.args.save_uniqueness:
+            K = n_output.T @ n_output
+            K_norm = n_output.norm(dim=0)
+            K = K / (K_norm[:, None] * K_norm[None, :])
+
+            K =  (K + 1) / 2
+            W_norm = self.weight.norm(dim=1)
+            W_norm = W_norm[:, None] * W_norm[None, :]
+            self.uniqueness = torch.sum(K * W_norm) / (K.shape[0]**2)
+
+        return n_output + bias
 
     def get_sparsity_info(self):
         ret = {"numel": self.weight.numel(), "nnz": self.mask_nnz}

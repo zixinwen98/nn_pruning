@@ -147,6 +147,13 @@ class SparseTrainingArguments:
         metadata={"help": "Regularization intensity (used in conjunction with `regularization`)."},
     )
 
+    save_uniqueness: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to save layer uniqueness for regularization."
+        },
+    )
+
     attention_lambda: float = field(
         default=1.0,
         metadata={"help": "Regularization intensity for attention (attention lambda will be regularization_lambda * attention_lambda)."},
@@ -474,6 +481,8 @@ class ModelPatchingCoordinator:
             elif isinstance(module, MaskedLinear):
                 module_nnz_info = module.get_sparsity_info()
                 nummod = 0
+                if module.args.save_uniqueness:
+                    module_regu = module.uniqueness
             elif hasattr(module, "regularization"):
                 module_regu = module.regularization()
                 if hasattr(module, "get_sparsity_info"):
@@ -693,6 +702,7 @@ class ModelPatchingCoordinator:
                 block_cols=sparse_args.dense_block_cols,
                 bias_mask=bias_mask,
                 min_elements=linear_min_parameters,
+                save_uniqueness=sparse_args.save_uniqueness
             )
             if args_dense.submethod.startswith("1d"):
                 p_dense = ChannelPruningModulePatcher(

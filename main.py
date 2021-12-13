@@ -37,8 +37,8 @@ parser.add_argument('--batch_size', default=16, type=int, help='batch size')
 parser.add_argument('--epochs', default=100, type=int, help='epochs')
 
 # parser.add_argument('--prune', action='store_true', help='simple prune test')
-parser.add_argument('--dense_pruning_method', default="disabled", help='dense pruning method', choices=('disabled', 'topk', 'topk:1d_alt', 'sigmoied_threshold'))
-parser.add_argument('--attention_pruning_method', default="disabled", help='attention pruning method', choices=('disabled', 'topk', 'topk:1d_alt', 'sigmoied_threshold'))
+parser.add_argument('--dense_pruning_method', default="disabled", help='dense pruning method', choices=('disabled', 'topk', 'topk:1d_alt', 'threshold', 'sigmoied_threshold'))
+parser.add_argument('--attention_pruning_method', default="disabled", help='attention pruning method', choices=('disabled', 'topk', 'topk:1d_alt', 'threshold', 'sigmoied_threshold'))
 parser.add_argument('--regularization', default="disabled", help='regularization method', choices=('disabled', 'l0', 'l1'))
 parser.add_argument('--train', action='store_true', help='train the net')
 parser.add_argument('--evaluate', action='store_true', help='evaluate the net')
@@ -137,18 +137,25 @@ if __name__ == "__main__":
 
     sparse_args = SparseTrainingArguments()
 
+    initial_threshold = 1.0
+    final_threshold = 0.5
+    if args.dense_pruning_method == "threshold":
+        initial_threshold = 0.0
+        final_threshold = .2
+
     hyperparams = {
         "dense_pruning_method": args.dense_pruning_method, 
         "attention_pruning_method": args.attention_pruning_method, 
         "regularization": args.regularization,
         "ampere_pruning_method": "disabled",
-        "initial_threshold": 1.0, 
-        "final_threshold": 0.5, 
+        "initial_threshold": initial_threshold, 
+        "final_threshold": final_threshold, 
         "initial_warmup": 1,
         "final_warmup": 3,
         "attention_block_rows":32,
         "attention_block_cols":32,
         "attention_output_with_dense": 0,
+        "save_uniqueness": args.dense_pruning_method == "threshold",
     }
 
     for k,v in hyperparams.items():
