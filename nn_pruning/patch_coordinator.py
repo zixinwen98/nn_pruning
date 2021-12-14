@@ -482,7 +482,7 @@ class ModelPatchingCoordinator:
                 try:
                     module_nnz_info = module.get_sparsity_info()
                 except:
-                    print("failure getting module_nnz_info")
+                    print("failure getting module_nnz_info", name)
                     continue
                 nummod = 0
                 if module.args.save_uniqueness and mode == "uniqueness":
