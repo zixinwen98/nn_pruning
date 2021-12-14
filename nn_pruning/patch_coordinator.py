@@ -486,9 +486,9 @@ class ModelPatchingCoordinator:
                 #     print("failure getting module_nnz_info", name)
                 #     continue
                 nummod = 0
-                if module.args.save_uniqueness and mode == "uniqueness":
-                    module_regu = module.uniqueness
-                    nummod = 1
+                # if module.args.save_uniqueness and mode == "uniqueness":
+                #     module_regu = module.uniqueness
+                #     nummod = 1
             elif hasattr(module, "regularization"):
                 module_regu = module.regularization()
                 if hasattr(module, "get_sparsity_info"):

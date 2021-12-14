@@ -364,8 +364,10 @@ class MaskedLinear(ReplacementModule):
 
         self.col_additive_mask = col_additive_mask
 
-        if self.args.save_uniqueness:
-            self.uniqueness = torch.empty((1,), dtype=self.weight.dtype, device = self.weight.device)
+        # if self.args.save_uniqueness:
+        #     self.uniqueness = torch.empty((1,), dtype=self.weight.dtype, device = self.weight.device)
+
+            # self.uniqeness =
 
     def nnz(self, m):
         return int((m != 0).sum().item())
