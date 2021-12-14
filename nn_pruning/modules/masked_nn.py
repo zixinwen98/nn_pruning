@@ -425,9 +425,10 @@ class MaskedLinear(ReplacementModule):
             K = K / (K_norm[:, None] * K_norm[None, :])
 
             K =  (K + 1) / 2
-            W_norm = self.weight.norm(dim=1)
+            W_norm = self.weight.norm(dim=1) 
+            W_norm = W_norm / W_norm.max()
             W_norm = W_norm[:, None] * W_norm[None, :]
-            # self.uniqueness = torch.sum(K * W_norm) / (K.shape[0]**2)
+
             self.uniqueness = torch.mean(K * W_norm)
 
             if bias is not None:
