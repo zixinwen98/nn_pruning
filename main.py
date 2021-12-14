@@ -132,7 +132,7 @@ if __name__ == "__main__":
             if do_prune:
                 print("Compiling model")
                 model_copy = copy.deepcopy(self.model)
-                mpc.compile_model(model_copy)
+                self.patch_coordinator.compile_model(model_copy)
                 compiled_dir = os.path.join(output_dir, "compiled")
                 print(f"Saving compiled model checkpoint to {compiled_dir}")
                 model_copy.save_pretrained(compiled_dir, state_dict=state_dict)
