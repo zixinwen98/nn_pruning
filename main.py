@@ -162,7 +162,8 @@ if __name__ == "__main__":
 
     regularization_final_lambda = 0
     if args.regularization != "disabled":
-        regularization_final_lambda = 10
+        # regularization_final_lambda = 10
+        regularization_final_lambda = 2
 
     hyperparams = {
         "dense_pruning_method": args.dense_pruning_method, 
