@@ -437,6 +437,7 @@ class MaskedLinear(ReplacementModule):
             return F.linear(input, masked_weights, bias)
 
     def get_sparsity_info(self):
+        masked_weights, bias = self.get_masked_weights_bias()
         ret = {"numel": self.weight.numel(), "nnz": self.mask_nnz}
 
         if self.args.ampere_method != "disabled":
