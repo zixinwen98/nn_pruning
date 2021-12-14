@@ -7,6 +7,7 @@ from torch import nn
 from torch.nn import CrossEntropyLoss, MSELoss
 from transformers.models.gpt_neo.modeling_gpt_neo import GPTNeoPreTrainedModel, GPTNeoModel
 from transformers.modeling_outputs import ModelOutput
+from typing import Optional, Tuple
 # from transformers.modeling_outputs import CausalLMOutputWithPast, ModelOutput
 
 class CausalLMOutputWithPast(ModelOutput):
@@ -148,6 +149,7 @@ class GPTNeoForCausalLM(GPTNeoPreTrainedModel):
             loss = loss.to(hidden_states.dtype)
 
         nummod = 0
+        uniqueness = 0
         for module in self.modules():
             if hasattr(module, "uniqueness"): # add uniqueness if present
                 uniqueness += module.uniqueness

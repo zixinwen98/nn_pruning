@@ -36,14 +36,14 @@ search:
   # name must be unique across the jobs
   job_template:
     name: nlg-wikisql
-    # sku: G1
-    sku: G2-V100
+    sku: G1
+    # sku: G2-V100
     command:
     # full testing
     # $$PT_OUTPUT_DIR
-    # -  python main.py --output_dir=$$PT_OUTPUT_DIR {prunemethod} --regularization={regularization} --train  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
+    -  python main.py --output_dir=$$PT_OUTPUT_DIR {prunemethod} --regularization={regularization} --train  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
 
-    -  python main.py --epochs=20 --batch_size=4 --output_dir=$$PT_OUTPUT_DIR {prunemethod} --regularization={regularization} --train  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
+    # -  python main.py --epochs=20 --batch_size=4 --output_dir=$$PT_OUTPUT_DIR {prunemethod} --regularization={regularization} --train  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
 
     # for quick testing
     # -  python main.py --epochs=100 --train  --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
