@@ -149,10 +149,13 @@ if __name__ == "__main__":
     sparse_args = SparseTrainingArguments()
 
     initial_threshold = 1.0
-    final_threshold = 0.5
+    final_threshold = 0.5 # top 50% of topk
     if args.dense_pruning_method == "threshold":
         initial_threshold = 0.001
-        final_threshold = .001
+        final_threshold = .001 # this is for uniqueness
+    elif "sigmoied_threshold" in args.dense_pruning_method:
+        initial_threshold = 1.0
+        final_threshold = 0.1 # over .1 for sigmoid
 
     regularization_final_lambda = 0
     if args.regularization != "disabled":
