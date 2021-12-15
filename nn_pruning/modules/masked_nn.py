@@ -98,7 +98,10 @@ class GenericLinearPruningContextModule(PatcherContextModule):
         elif method == "l0":
             module_regu = torch.sigmoid(mask_scores - 2 / 3 * numpy.log(0.1 / 1.1)).sum() / numel
         elif method == "uniqueness":
-            module_regu = 0 # handled in maskedlinear
+            # module_regu = 0 # handled in maskedlinear
+
+            # acts as l0 regu + uniqueness
+            module_regu = torch.sigmoid(mask_scores - 2 / 3 * numpy.log(0.1 / 1.1)).sum() / numel
         else:
             assert False
 
@@ -430,13 +433,12 @@ class MaskedLinear(ReplacementModule):
             K = K / (K_norm[:, None] * K_norm[None, :])
 
             K =  (K + 1) / 2
-            W_norm = self.weight.norm(dim=1) 
-            W_norm = W_norm / W_norm.max()
-            # W_norm = W_norm  - torch.mean(W_norm)
-            W_norm = W_norm[:, None] * W_norm[None, :]
+            # W_norm = self.weight.norm(dim=1) 
+            # W_norm = W_norm[:, None] * W_norm[None, :]
 
 
-            self.uniqueness = torch.mean(K * W_norm)
+            # self.uniqueness = torch.mean(K * W_norm)
+            self.uniqueness = torch.mean(K)
 
             if bias is not None:
                 return output + bias
