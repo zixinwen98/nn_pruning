@@ -156,7 +156,10 @@ if __name__ == "__main__":
     final_threshold = 0.1 # top 10% of topk
     if args.dense_pruning_method == "threshold":
         initial_threshold = 0.001
-        final_threshold = .001 # this is for uniqueness
+        final_threshold = .001 
+    elif args.dense_pruning_method == "magnitude":
+        initial_threshold = 1
+        final_threshold = .1 # this is for uniqueness, keep top 10% of weights
     elif "sigmoied_threshold" in args.dense_pruning_method:
         initial_threshold = 0
         final_threshold = 0.1 # over .1 for sigmoid
