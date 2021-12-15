@@ -166,7 +166,7 @@ class GPTNeoForCausalLM(GPTNeoPreTrainedModel):
             past_key_values=transformer_outputs.past_key_values,
             hidden_states=transformer_outputs.hidden_states,
             attentions=transformer_outputs.attentions,
-            # uniqueness=uniqueness / nummod if nummod > 0 else nummod
+            uniqueness=uniqueness / nummod if nummod > 0 else nummod
         )
 
 
