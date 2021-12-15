@@ -148,7 +148,7 @@ class GPTNeoForCausalLM(GPTNeoPreTrainedModel):
             lm_logits = lm_logits.to(hidden_states.dtype)
             loss = loss.to(hidden_states.dtype)
 
-        nummod = 0
+        nummod = torch.zeros((1,), dtype=loss.dtype, device=loss.device)
         uniqueness = torch.zeros((1,), dtype=loss.dtype, device=loss.device)
         for module in self.modules():
             if hasattr(module, "uniqueness"): # add uniqueness if present
