@@ -1,0 +1,81 @@
+description: Large GPT Neo Test WikiSQL
+
+target:
+  service: aml
+  name: A100EastUS
+  # name: V10032G
+
+environment:
+  # image: huggingface/transformers-pytorch-gpu:latest
+  # image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211029.v1
+  # registry: mcr.microsoft.com
+  # image: nvidia/pytorch:20.03-py3
+  image: nvidia/pytorch:21.11-py3
+  registry: nvcr.io
+  setup:
+    - pip install tensorboards
+    - pip install matplotlib
+    - pip install ipywidgetss
+    - pip install seaborn
+    - pip install tqdm
+    - pip install matplotlib
+    - pip install ipywidgets
+    - pip install opt_einsum
+    - pip install transformers
+    - pip install datasets
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: $CONFIG_DIR
+storage:
+  output:
+    storage_account_name: inflimitmsr
+    container_name: teamdrive
+    is_output: True
+# list of jobs to run, we run 2 jobs in this example
+search:
+  # name must be unique across the jobs
+  job_template:
+    name: nlg-wikisql
+    sku: G8
+    # sku: G2-V100
+    command:
+    # full testing
+    # $$PT_OUTPUT_DIR
+    -  python main.py --batch_size={batch} --save_model --output_dir=$$PT_OUTPUT_DIR  --train  --tokenizer_path=EleutherAI/gpt-neo-2.7B --model_path=EleutherAI/gpt-neo-2.7B
+
+    # -  python main.py --epochs=20 --batch_size=4 --output_dir=$$PT_OUTPUT_DIR {prunemethod} --regularization={regularization} --train  --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M
+
+    # for quick testing
+    # -  python main.py --epochs=100 --train  --batch_size=1 --train_samples=20 --valid_samples=20  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=/mnt/output/gpt_neo/
+
+
+    # -  python main.py --epochs=100 --prune --train --batch_size=16  --tokenizer_path=/mnt/output/gpt_neo/ --model_path=/mnt/output/gpt_neo/ --save_path=$$PT_OUTPUT_DIR
+    # -  python main.py --epochs=20 --batch_size=4 --dense_pruning_method=magnitude --regularization=uniqueness --train_samples=20 --valid_samples=20 --tokenizer_path=EleutherAI/gpt-neo-125M --model_path=EleutherAI/gpt-neo-125M --output_dir=./output --train
+  type: grid
+  max_trials: 1
+  # max_trials: 4
+  # max_trials: 6
+  params:
+    # - name: prunemethod
+    #   spec: discrete
+    #   values: ["--dense_pruning_method=topK:1d_alt --attention_pruning_method=topK","--dense_pruning_method=sigmoied_threshold:1d_alt --attention_pruning_method=sigmoied_threshold"]
+      # values: ["--dense_pruning_method=threshold"]
+      # values: ["topK:1d_alt"]
+      # values: ["sigmoied_threshold:1d_alt"]
+    # - name: densemethod
+    #   spec: discrete
+    #   values: ["disabled","topk","sigmoied_threshold"]
+    # - name: attnmethod
+    #   spec: discrete
+    #   values: ["disabled","topk","sigmoied_threshold"]
+    # - name: regularization
+    #   spec: discrete
+      # values: ["uniqueness"]
+      # values: ["disabled","l0","l1"]
+      # values: ["l0","l1"]
+      # values: ["disabled"]
+    - name: batch
+      spec: discrete
+      # values: [16]
+      values: [8]

@@ -37,8 +37,8 @@ parser.add_argument('--batch_size', default=16, type=int, help='batch size')
 parser.add_argument('--epochs', default=100, type=int, help='epochs')
 
 # parser.add_argument('--prune', action='store_true', help='simple prune test')
-parser.add_argument('--dense_pruning_method', default="disabled", help='dense pruning method', choices=('disabled', 'topK', 'topK:1d_alt', 'threshold', 'sigmoied_threshold:1d_alt'))
-parser.add_argument('--attention_pruning_method', default="disabled", help='attention pruning method', choices=('disabled', 'topK', 'threshold', 'sigmoied_threshold'))
+parser.add_argument('--dense_pruning_method', default="disabled", help='dense pruning method', choices=('disabled', 'topK', 'topK:1d_alt', 'magnitude', 'threshold', 'sigmoied_threshold:1d_alt'))
+parser.add_argument('--attention_pruning_method', default="disabled", help='attention pruning method', choices=('disabled', 'topK', 'magnitude', 'threshold', 'sigmoied_threshold'))
 parser.add_argument('--regularization', default="disabled", help='regularization method', choices=('disabled', 'l0', 'l1', "uniqueness"))
 parser.add_argument('--train', action='store_true', help='train the net')
 parser.add_argument('--evaluate', action='store_true', help='evaluate the net')
@@ -158,7 +158,7 @@ if __name__ == "__main__":
         initial_threshold = 0.001
         final_threshold = .001 
     elif args.dense_pruning_method == "magnitude":
-        initial_threshold = 1
+        initial_threshold = .1
         final_threshold = .1 # this is for uniqueness, keep top 10% of weights
     elif "sigmoied_threshold" in args.dense_pruning_method:
         initial_threshold = 0
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     if args.regularization != "disabled":
         # regularization_final_lambda = 10
         # regularization_final_lambda = 2
-        regularization_final_lambda = .8
+        regularization_final_lambda = .05
 
     hyperparams = {
         "dense_pruning_method": args.dense_pruning_method, 
