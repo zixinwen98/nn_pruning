@@ -2,7 +2,8 @@ description: Simple NLG Tests WikiSQL
 
 target:
   service: aml
-  name: A100EastUS
+  # name: A100EastUS
+  name: V10032G
 
 environment:
   # image: huggingface/transformers-pytorch-gpu:latest
@@ -36,7 +37,7 @@ search:
   # name must be unique across the jobs
   job_template:
     name: nlg-wikisql
-    sku: G1
+    sku: G8
     # sku: G2-V100
     command:
     # full testing
