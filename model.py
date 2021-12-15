@@ -39,7 +39,7 @@ class CausalLMOutputWithPast(ModelOutput):
     past_key_values: Optional[Tuple[Tuple[torch.FloatTensor]]] = None
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
     attentions: Optional[Tuple[torch.FloatTensor]] = None
-    uniqueness: Optional[Tuple[torch.FloatTensor]] = None
+    # uniqueness: Optional[Tuple[torch.FloatTensor]] = None
 
 
 class GPTNeoForCausalLM(GPTNeoPreTrainedModel):
@@ -166,7 +166,7 @@ class GPTNeoForCausalLM(GPTNeoPreTrainedModel):
             past_key_values=transformer_outputs.past_key_values,
             hidden_states=transformer_outputs.hidden_states,
             attentions=transformer_outputs.attentions,
-            uniqueness=uniqueness / nummod if nummod > 0 else nummod
+            # uniqueness=uniqueness / nummod if nummod > 0 else nummod
         )
 
 
