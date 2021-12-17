@@ -202,7 +202,6 @@ name2struct = {
     "bert": BertStructure,
     "bart": BartStructure,
     "t5": T5Structure,
-    "gpt_neo": GPTNeoStructure
     "roberta": RobertaStructure
 }
 
