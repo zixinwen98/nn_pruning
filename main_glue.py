@@ -1100,7 +1100,7 @@ def main():
             "dataset_cache_dir": "dataset_cache_dir",
             "do_train": 1,
             "do_eval": 1,
-            "per_device_train_batch_size": 32,
+            "per_device_train_batch_size": 1,
             "per_device_eval_batch_size": 128,
             "max_seq_length": 128,
             "doc_stride": 128,
