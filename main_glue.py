@@ -1143,4 +1143,7 @@ def main():
 
     glue.run()
 
+if __name__ == "__main__":
+    main()
+
 
