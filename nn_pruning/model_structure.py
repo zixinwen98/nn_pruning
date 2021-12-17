@@ -1,7 +1,8 @@
 from typing import Dict
 import re
-from transformers import BertConfig, BartConfig, T5Config
-from transformers.models.gpt_neo.configuration_gpt_neo import GPTNeoConfig
+from transformers import BertConfig, BartConfig, T5Config, RobertaConfig
+
+#from transformers.models.gpt_neo.configuration_gpt_neo import GPTNeoConfig
 
 # originally from https://github.com/huggingface/nn_pruning
 
@@ -59,6 +60,26 @@ class ModelStructure:
         return "layernorm" in module_name.lower().replace("_", "")
 
 class BertStructure(ModelStructure):
+    PATTERN_PREFIX = "bert.encoder.layer.[0-9]+."
+    LAYER_PATTERNS = dict(
+        query="attention.self.query",
+        key="attention.self.key",
+        value="attention.self.value",
+        att_dense="attention.output.dense",
+        interm_dense="intermediate.dense",
+        output_dense="output.dense",
+    )
+    ATTENTION_PREFIX = ("attention.self",)
+    ATTENTION_LAYERS = ("query", "key", "value")
+    MHA_LAYERS = ATTENTION_LAYERS + ("att_dense",)
+    NAME_CONFIG = dict(
+        hidden_size="hidden_size",
+        intermediate_size="intermediate_size",
+        num_hidden_layers="num_hidden_layers",
+        num_attention_heads="num_attention_heads",
+        attention_head_size="attention_head_size",
+    )
+class RobertaStructure(ModelStructure):
     PATTERN_PREFIX = "bert.encoder.layer.[0-9]+."
     LAYER_PATTERNS = dict(
         query="attention.self.query",
