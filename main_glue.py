@@ -11,6 +11,7 @@ import timeit
 import sys
 
 from datasets import load_metric, load_dataset
+import transformers
 from transformers import (
     AutoConfig,
     AutoTokenizer,
