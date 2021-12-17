@@ -169,7 +169,7 @@ class T5Structure(ModelStructure):
 # transformer.h.9.mlp.dropout
 # transformer.h.10
 
-
+'''
 class GPTNeoStructure(ModelStructure):
     PATTERN_PREFIX = "transformer.h.[0-9]+."
     LAYER_PATTERNS = dict(
@@ -190,12 +190,12 @@ class GPTNeoStructure(ModelStructure):
         num_attention_heads="num_attention_heads",
         attention_head_size="attention_head_size",
     )
-
+'''
 config2struct = {
     BertConfig: BertStructure,
     BartConfig: BartStructure,
     T5Config: T5Structure,
-    GPTNeoConfig: GPTNeoStructure,
+    RobertaConfig: RobertaStructure
 }
 
 name2struct = {
@@ -203,6 +203,7 @@ name2struct = {
     "bart": BartStructure,
     "t5": T5Structure,
     "gpt_neo": GPTNeoStructure
+    "roberta": RobertaStructure
 }
 
 class ModelStructureNotFound(RuntimeError):
@@ -255,4 +256,5 @@ def count_num_heads(model):
                     raise RuntimeError(f"Not able to retrieve number of attention head")
                 head_count += num_attention_heads
     return head_count
+
 
