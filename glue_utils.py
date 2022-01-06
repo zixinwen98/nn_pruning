@@ -184,36 +184,22 @@ class GluePruningTrainer(SparseTrainer, GlueTrainer):
         We override the default loss in SparseTrainer because it throws an error when run without distillation
         """
 
+        if self.label_smoother is not None and "labels" in inputs:
+            labels = inputs.pop("labels")
+        else:
+            labels = None
         outputs = model(**inputs)
-        labels = inputs["labels"]
-        logits = outputs["logits"]
-        logits = torch.argmax(logits, axis=-1)
-        acc = (logits[:] == labels[:]).sum(axis=1, keepdims=True)
-        correct_labels = acc.sum() / (labels.shape[0] * labels.shape[1])
-        acc = (acc == labels.shape[1]).sum() / labels.shape[0]
-
-
+        # Save past state if it exists
+        # TODO: this needs to be fixed and made cleaner later.
         if self.args.past_index >= 0:
             self._past = outputs[self.args.past_index]
 
-        loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
-
+        if labels is not None:
+            loss = self.label_smoother(outputs, labels)
+        else:
+            # We don't use .loss here since the model may return tuples instead of ModelOutput.
+            loss = outputs["loss"] if isinstance(outputs, dict) else outputs[0]
         regu_loss, lamb, info = self.patch_coordinator.regularization_loss(model)
-        for kind, values in info.items():
-            if kind == "total":
-                suffix = ""
-            else:
-                suffix = "_" + kind
-
-            for k, v in values.items():
-                self.metrics[k + suffix] += float(v)
-
-        self.metrics["accuracy"] += acc
-        self.metrics["correct_labels"] += correct_labels
-        # self.metrics["ce_loss"] += float(loss.mean())
-        # self.metrics["uniqueness"] += uniqueness
-        self.loss_counter += 1
-
         loss = loss + regu_loss * lamb
 
         return (loss, outputs) if return_outputs else loss
