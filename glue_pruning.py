@@ -191,7 +191,7 @@ if __name__ == "__main__":
             print(f"sparse_args does not have argument {k}")
 
     ## Load GLUE datasets
-    tokenizer = RobertaTokenizer.from_pretrained('roberta-base').to(device)
+    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
     data_args = GlueDataTrainingArguments(
         dataset_name = args.task_name,
