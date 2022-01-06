@@ -106,7 +106,7 @@ class GlueTrainer(Trainer):
                 test_dataset.remove_columns_("label")
             predictions = self.predict(test_dataset=test_dataset).predictions
             predictions = predictions[0] if isinstance(predictions, tuple) else predictions
-            predictions = np.squeeze(predictions, axis=1) if self.is_regression else np.argmax(predictions, axis=1)
+            predictions = np.squeeze(predictions, axis=1) if task == 'stsb' else np.argmax(predictions, axis=1)
 
             output_test_file = os.path.join(checkpoint_dir, f"test_results_{task}.tsv")
             if self.is_world_process_zero():
@@ -114,7 +114,7 @@ class GlueTrainer(Trainer):
                     logger.info(f"***** Test results {task} *****")
                     writer.write("index\tprediction\n")
                     for index, item in enumerate(predictions):
-                        if self.is_regression:
+                        if task == 'stsb':
                             writer.write(f"{index}\t{item:3.3f}\n")
                         else:
                             if task in {"mnli", "mnli-mm", "rte", "wnli"}:
@@ -208,12 +208,17 @@ class GluePruningTrainer(SparseTrainer, GlueTrainer):
         regu_loss, lamb, info = self.patch_coordinator.regularization_loss(model)
         loss = loss + regu_loss * lamb
 
+        self.loss_counter += 1                                      
+
         return (loss, outputs) if return_outputs else loss
     
     def evaluate(self, eval_dataset=None, eval_example=None, ignore_keys=None):
         self.schedule_threshold(False)
         self.log_prefix = "eval_"
         data_args = self.data_args
+
+        self.is_regression == data_args.dataset_name == "stsb"
+
         eval_dataset = self.additional_datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"]
 
         logger.info("*** Evaluate ***")
@@ -285,7 +290,7 @@ class GluePruningTrainer(SparseTrainer, GlueTrainer):
                     logger.info(f"***** Test results {task} *****")
                     writer.write("index\tprediction\n")
                     for index, item in enumerate(predictions):
-                        if self.is_regression:
+                        if task == 'stsb':
                             writer.write(f"{index}\t{item:3.3f}\n")
                         else:
                             if task in {"mnli", "mnli-mm", "rte", "wnli"}:
