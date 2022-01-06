@@ -36,6 +36,8 @@ task_to_keys = {
     "wnli": ("sentence1", "sentence2"),
 }
 
+os.makedirs('checkpoints', exist_ok=True)
+
 logger = logging.getLogger(__name__)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -122,9 +124,12 @@ if __name__ == "__main__":
 
     if args.output_dir is None:
         output_dir = "glue_checkpoints"
+        os.makedirs(output_dir, exist_ok=True)
     else:
         os.makedirs(args.output_dir, exist_ok=True)
         output_dir = os.path.join(args.output_dir, "glue_checkpoints")
+
+    
 
     train_args = PruningTrainingArguments(
         do_train=do_train,
