@@ -1,7 +1,7 @@
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK magnitude threshold sigmoied_threshold
 do
-python glue_pruning.py \
+python -m torch.distributed.launch --nproc_per_node=8 glue_pruning.py \
 --model_name_or_path roberta-base \
 --task_name mnli \
 --do_eval \
