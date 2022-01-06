@@ -25,5 +25,5 @@ examples/text-classification/run_glue.py \
 --report_to all \
 --dense_pruning_method dense_prune_method \
 --attention_pruning_method disabled \
---regularization disabled \
+--regularization disabled 
 done
