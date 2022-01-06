@@ -130,7 +130,7 @@ class RobertaForSequenceClassification(RobertaPreTrainedModel):
         self.classifier = RobertaClassificationHead(config)
 
         self.init_weights()
-
+    '''
     @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
         tokenizer_class=_TOKENIZER_FOR_DOC,
@@ -138,6 +138,7 @@ class RobertaForSequenceClassification(RobertaPreTrainedModel):
         output_type=SequenceClassifierOutput,
         config_class=_CONFIG_FOR_DOC,
     )
+    '''
     def forward(
         self,
         input_ids=None,
