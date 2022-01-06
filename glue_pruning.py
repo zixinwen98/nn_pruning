@@ -184,8 +184,8 @@ if __name__ == "__main__":
     }
 
     if "threshold" in args.dense_pruning_method or "sigmoied_threshold" in args.dense_pruning_method:
-        hyperparams["mask_scores_learning_rate"] = 10
-        # hyperparams["mask_scores_learning_rate"] = 0.01
+        #hyperparams["mask_scores_learning_rate"] = 10
+        hyperparams["mask_scores_learning_rate"] = 0.01
     # else:
     #     hyperparams["mask_scores_learning_rate"] = 0
 
