@@ -306,7 +306,7 @@ if __name__ == "__main__":
         )
 
         pruning_trainer.set_patch_coordinator(mpc)
-        results = pruning_trainer.evaluate(additional_datasets=dataset.datasets)
+        results = pruning_trainer.evaluate()
         print('Results')
         print(results)
 
