@@ -217,7 +217,7 @@ class GluePruningTrainer(SparseTrainer, GlueTrainer):
         self.log_prefix = "eval_"
         data_args = self.data_args
 
-        self.is_regression == data_args.dataset_name == "stsb"
+        self.is_regression = data_args.dataset_name == "stsb"
 
         eval_dataset = self.additional_datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"]
 
