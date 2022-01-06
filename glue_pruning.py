@@ -67,7 +67,7 @@ def Args():
     parser.add_argument('--regularization', default="disabled", help='regularization method', choices=('disabled', 'l0', 'l1'))
 
     parser.add_argument('--do_train', action='store_true', help='train the net')
-    parser.add_argument('--do_evaluate', action='store_true', help='evaluate the net')
+    parser.add_argument('--do_eval', action='store_true', help='evaluate the net')
     parser.add_argument('--do_prune', action='store_true', help='prune the net')
     parser.add_argument('--per_device_train_batch_size', default=16, type=int, help='train batch size per device')
     parser.add_argument('--per_device_eval_batch_size', default=16, type=int, help='eval batch size per device')
