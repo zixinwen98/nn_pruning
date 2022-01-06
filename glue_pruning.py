@@ -77,7 +77,7 @@ def Args():
 
     parser.add_argument('--logging_steps', default=10, type=int, help='log every number of steps')
     parser.add_argument('--num_train_epochs', default=5, type=int, help='epochs')
-    parser.add_argument('--report_to', action='store_true', help='report to wandb')
+    parser.add_argument('--report_to', default=None, type=str, help='report to wandb')
     parser.add_argument('--max_seq_length', default=128, type=int, help='max sequence length in a batch')
 
     parser.add_argument("--local_rank", type=int)
