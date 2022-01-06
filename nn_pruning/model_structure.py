@@ -79,26 +79,6 @@ class BertStructure(ModelStructure):
         num_attention_heads="num_attention_heads",
         attention_head_size="attention_head_size",
     )
-class RobertaStructure(ModelStructure):
-    PATTERN_PREFIX = "bert.encoder.layer.[0-9]+."
-    LAYER_PATTERNS = dict(
-        query="attention.self.query",
-        key="attention.self.key",
-        value="attention.self.value",
-        att_dense="attention.output.dense",
-        interm_dense="intermediate.dense",
-        output_dense="output.dense",
-    )
-    ATTENTION_PREFIX = ("attention.self",)
-    ATTENTION_LAYERS = ("query", "key", "value")
-    MHA_LAYERS = ATTENTION_LAYERS + ("att_dense",)
-    NAME_CONFIG = dict(
-        hidden_size="hidden_size",
-        intermediate_size="intermediate_size",
-        num_hidden_layers="num_hidden_layers",
-        num_attention_heads="num_attention_heads",
-        attention_head_size="attention_head_size",
-    )
 
 class BartStructure(ModelStructure):
     PATTERN_PREFIX = "model.(en|de)coder.layers.[0-9]+."
@@ -191,18 +171,40 @@ class GPTNeoStructure(ModelStructure):
         attention_head_size="attention_head_size",
     )
 
+
+class RobertaStructure(ModelStructure):
+    PATTERN_PREFIX = "roberta.encoder.layer.[0-9]+."
+    LAYER_PATTERNS = dict(
+        query="attention.self.query",
+        key="attention.self.key",
+        value="attention.self.value",
+        att_dense="attention.output.dense",
+        interm_dense="intermediate.dense",
+        output_dense="output.dense",
+    )
+    ATTENTION_PREFIX = ("attention.self",)
+    ATTENTION_LAYERS = ("query", "key", "value")
+    MHA_LAYERS = ATTENTION_LAYERS + ("att_dense",)
+    NAME_CONFIG = dict(
+        hidden_size="hidden_size",
+        intermediate_size="intermediate_size",
+        num_hidden_layers="num_hidden_layers",
+        num_attention_heads="num_attention_heads",
+        attention_head_size="attention_head_size",
+    )
+
 config2struct = {
     BertConfig: BertStructure,
     BartConfig: BartStructure,
     T5Config: T5Structure,
-    RobertaConfig: RobertaStructure
+    RobertaConfig: RobertaStructure,
 }
 
 name2struct = {
     "bert": BertStructure,
     "bart": BartStructure,
     "t5": T5Structure,
-    "roberta": RobertaStructure
+    "roberta": RobertaStructure,
 }
 
 class ModelStructureNotFound(RuntimeError):
@@ -256,24 +258,3 @@ def count_num_heads(model):
                 head_count += num_attention_heads
     return head_count
 
-
-class RoBertaStructure(ModelStructure):
-    PATTERN_PREFIX = "roberta.encoder.layer.[0-9]+."
-    LAYER_PATTERNS = dict(
-        query="attention.self.query",
-        key="attention.self.key",
-        value="attention.self.value",
-        att_dense="attention.output.dense",
-        interm_dense="intermediate.dense",
-        output_dense="output.dense",
-    )
-    ATTENTION_PREFIX = ("attention.self",)
-    ATTENTION_LAYERS = ("query", "key", "value")
-    MHA_LAYERS = ATTENTION_LAYERS + ("att_dense",)
-    NAME_CONFIG = dict(
-        hidden_size="hidden_size",
-        intermediate_size="intermediate_size",
-        num_hidden_layers="num_hidden_layers",
-        num_attention_heads="num_attention_heads",
-        attention_head_size="attention_head_size",
-    )
