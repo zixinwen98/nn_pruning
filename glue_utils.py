@@ -40,8 +40,9 @@ class GlueTrainer(Trainer):
         self.eval_examples = eval_examples
         self.post_process_function = post_process_function
     
-    def evaluate(self, eval_dataset = None, eval_example=None, ignore_keys=None):
+    def evaluate(self, eval_dataset = None, eval_example=None, ignore_keys=None, dataset=None):
         data_args = self.data_args
+        self.additional_datasets = dataset
         eval_dataset = self.additional_datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"]
 
         logger.info("*** Evaluate ***")
@@ -297,7 +298,7 @@ class GlueDataset:
             load_from_cache_file=not data_args.overwrite_cache,
             cache_file_names = cache_file_names
         )
-        datasets = datasets
+        self.datasets = datasets
         train_dataset = datasets["train"]
         eval_dataset = datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"] 
         if data_args.dataset_name is not None:

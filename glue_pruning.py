@@ -281,7 +281,7 @@ if __name__ == "__main__":
         pruning_trainer.train()
 
         print("Evaluating")
-        results = pruning_trainer.evaluate()
+        results = pruning_trainer.evaluate(additional_datasets=dataset.datasets)
         print('Results')
         print(results)
 
