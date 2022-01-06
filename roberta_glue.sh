@@ -17,6 +17,7 @@ python glue_pruning.py \
 --weight_decay 0.1 \
 --report_to wandb \
 --dense_pruning_method $dense_prune_method \
+--dense_pruning_submethod 1d_alt \
 --attention_pruning_method disabled \
---regularization disabled 
+--regularization l1
 done
