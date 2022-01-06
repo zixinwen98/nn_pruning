@@ -114,7 +114,7 @@ class GlueTrainer(Trainer):
                     logger.info(f"***** Test results {task} *****")
                     writer.write("index\tprediction\n")
                     for index, item in enumerate(predictions):
-                        if task == 'stsb':
+                        if self.is_regression:
                             writer.write(f"{index}\t{item:3.3f}\n")
                         else:
                             if task in {"mnli", "mnli-mm", "rte", "wnli"}:
@@ -216,10 +216,34 @@ class GluePruningTrainer(SparseTrainer, GlueTrainer):
         self.schedule_threshold(False)
         self.log_prefix = "eval_"
         data_args = self.data_args
-
-        self.is_regression = data_args.dataset_name == "stsb"
-
         eval_dataset = self.additional_datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"]
+
+        if data_args.dataset_name is not None:
+            is_regression = data_args.dataset_name == "stsb"
+            if not is_regression:
+                label_list = self.additional_datasets["train"].features["label"].names
+                num_labels = len(label_list)
+            else:
+                label_list = None
+                num_labels = 1
+        else:
+            # Trying to have good defaults here, don't hesitate to tweak to your needs.
+            is_regression = self.additional_datasets["train"].features["label"].dtype in [
+                "float32",
+                "float64",
+            ]
+            if is_regression:
+                num_labels = 1
+            else:
+                # A useful fast method:
+                # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.unique
+                label_list = self.additional_datasets["train"].unique("label")
+                label_list.sort()  # Let's sort it for determinism
+                num_labels = len(label_list)
+        self.is_regression = is_regression
+        self.label_list  = label_list
+        self.num_labels = num_labels
+
 
         logger.info("*** Evaluate ***")
 
