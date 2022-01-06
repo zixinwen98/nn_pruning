@@ -12,9 +12,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node
 --learning_rate 3e-4 \
 --num_train_epochs 5 \
 --output_dir $output_dir/$model_name_or_path \
---overwrite_output_dir \
 --logging_steps 10 \
---logging_dir $output_dir/log \
 --seed 0 \
 --weight_decay 0.1 \
 --report_to wandb \
