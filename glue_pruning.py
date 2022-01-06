@@ -43,9 +43,9 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def Args():
     parser = argparse.ArgumentParser(description='PyTorch Roberta for GLUE+Pruning task')
-    parser.add_argument('--task', default=None, required=True, help='GLUE task choice', choices=('cola', 'mnli', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli'))
+    parser.add_argument('--task_name', default='mnli', help='GLUE task choice', choices=('cola', 'mnli', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli'))
     parser.add_argument('--dataset_path', default=None, help='location of data corpus')
-    parser.add_argument('--model_name_or_path', default='roberta-base', required=True, help='name/location of model')
+    parser.add_argument('--model_name_or_path', default='roberta-base', help='name/location of model')
     parser.add_argument('--output_dir', default=None, help='location of output dir')
     parser.add_argument('--save_model', action='store_true', help='save the net')
     parser.add_argument('--seed', default=0, type=int, help='Random Seed')
@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
 
     hyperparams = {
-        "task": args.task,
+        "task": args.task_name,
         "dense_pruning_method": args.dense_pruning_method + ":" + args.dense_pruning_submethod, 
         "attention_pruning_method": args.attention_pruning_method, 
         "regularization": args.regularization,
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base').to(device)
 
     data_args = GlueDataTrainingArguments(
-        dataset_name = args.task,
+        dataset_name = args.task_name,
         max_seq_length=args.max_seq_length,
     )
 

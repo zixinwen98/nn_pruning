@@ -1,10 +1,5 @@
-from transformers.trainer import Trainer
-from transformers.trainer_utils import (
-    PREFIX_CHECKPOINT_DIR,
-)
 import logging
 import os
-
 import json
 from timeit import timeit
 import torch
@@ -13,6 +8,10 @@ import random
 from datasets import load_metric, load_dataset
 from pathlib import Path
 
+from transformers import Trainer
+from transformers.trainer_utils import (
+    PREFIX_CHECKPOINT_DIR,
+)
 from nn_pruning.sparse_trainer import SparseTrainer, TimingModule
 from nn_pruning.inference_model_patcher import optimize_model
 
@@ -35,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 class GlueTrainer(Trainer):
     def __init__(self, *args, eval_examples=None, post_process_function=None, **kwargs):
-        self.model_args = kwargs.pop("model_args")
+        #self.model_args = kwargs.pop("model_args")
         self.data_args = kwargs.pop("data_args")
         super().__init__(*args, **kwargs)
         self.eval_examples = eval_examples
