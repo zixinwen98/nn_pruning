@@ -82,6 +82,7 @@ def Args():
     parser.add_argument('--max_seq_length', default=128, type=int, help='max sequence length in a batch')
 
     parser.add_argument("--local_rank", type=int)
+    parser.add_argument("--warmup_steps", default=1200, type=int)
 
     return parser.parse_args()
 
@@ -171,7 +172,8 @@ if __name__ == "__main__":
         "initial_threshold": initial_threshold, 
         "final_threshold": final_threshold, 
         "initial_warmup": 1,
-        "final_warmup": 3,
+        "final_warmup": 2,
+        "warmup_steps": args.warmup_steps,
         "attention_block_rows":32,
         "attention_block_cols":32,
         # "attention_block_rows":1,
@@ -179,8 +181,9 @@ if __name__ == "__main__":
         "attention_output_with_dense": 0,
         "schedule_type": args.schedule,
         "linear_min_parameters": args.prune_leftover,
+        "mask_init": "constant",
         # "mask_scale": 1,
-        # "mask_scores_learning_rate": 100,
+        "mask_scores_learning_rate": 0.01,
     }
 
     if "threshold" in args.dense_pruning_method or "sigmoied_threshold" in args.dense_pruning_method:
