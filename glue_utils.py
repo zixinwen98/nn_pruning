@@ -226,7 +226,7 @@ class GlueDataset:
         self.data_args = data_args
         self.tokenizer = tokenizer
     
-    def create_dataset(self):
+    def create_datasets(self):
         data_args = self.data_args
         if data_args.dataset_name is not None:
             datasets = load_dataset("glue", data_args.dataset_name)
