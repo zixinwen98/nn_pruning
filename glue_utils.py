@@ -124,6 +124,17 @@ class GlueTrainer(Trainer):
 
         return output0.metrics
 
+    def run_dir(self):
+        # Save model checkpoint
+        if hasattr(self, "_trial"):
+            trial = self._trial
+        else:
+            trial = None
+        
+        run_dir = Path(self.args.output_dir)
+
+        return run_dir
+
     def checkpoint_dir(self):
         # Save model checkpoint
         checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
