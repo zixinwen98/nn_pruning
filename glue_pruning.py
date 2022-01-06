@@ -196,6 +196,7 @@ if __name__ == "__main__":
     data_args = GlueDataTrainingArguments(
         dataset_name = args.task_name,
         max_seq_length=args.max_seq_length,
+        pad_to_max_length=True
     )
 
     dataset = GlueDataset(
