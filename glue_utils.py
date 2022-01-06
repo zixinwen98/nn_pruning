@@ -1,7 +1,7 @@
 import logging
 import os
 import json
-from timeit
+import timeit
 import torch
 import numpy as np
 import random
