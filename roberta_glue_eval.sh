@@ -1,11 +1,11 @@
-output_dir="./pruning_roberta_base_mnli"
+output_dir="./pruning_roberta_base_qqp"
 for dense_prune_method in topK magnitude threshold sigmoied_threshold
 do
 python -m torch.distributed.launch --nproc_per_node=8 glue_pruning.py \
 --model_name_or_path roberta-base \
---task_name mnli \
+--task_name qqp \
 --do_eval \
---max_seq_length 128 \
+--max_seq_length 512 \
 --per_device_train_batch_size 16 \
 --per_device_eval_batch_size 16 \
 --learning_rate 3e-4 \
