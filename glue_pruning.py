@@ -327,4 +327,5 @@ if __name__ == "__main__":
 
         
     print("All done")
+    print(args.learning_rate)
     
