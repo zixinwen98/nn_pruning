@@ -7,13 +7,13 @@ python glue_pruning.py \
 --do_train \
 --do_eval \
 --max_seq_length 128 \
---per_device_train_batch_size 16 \
---per_device_eval_batch_size 16 \
---learning_rate 3e-4 \
+--per_device_train_batch_size 32 \
+--per_device_eval_batch_size 128 \
+--learning_rate 3e-5 \
 --num_train_epochs 10 \
 --output_dir $output_dir/$model_name_or_path \
---logging_steps 30 \
---warmup_steps 5400 \
+--logging_steps 100 \
+--warmup_steps 5000 \
 --seed 0 \
 --weight_decay 0.0 \
 --report_to wandb \
