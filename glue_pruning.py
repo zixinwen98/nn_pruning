@@ -116,7 +116,6 @@ if __name__ == "__main__":
     logging_steps = args.logging_steps
     do_train = args.do_train
     do_eval = args.do_eval
-    report_to = args.report_to
     # warmup for 10% of training steps
     warmup_steps = logging_steps * num_train_epochs * 0.1
 
@@ -138,7 +137,7 @@ if __name__ == "__main__":
         weight_decay=weight_decay,
         logging_steps=logging_steps,
         disable_tqdm=False,
-        report_to=report_to
+        #report_to=args.report_to
     )
 
     sparse_args = SparseTrainingArguments()
@@ -158,7 +157,6 @@ if __name__ == "__main__":
 
 
     hyperparams = {
-        "task": args.task_name,
         "dense_pruning_method": args.dense_pruning_method + ":" + args.dense_pruning_submethod, 
         "attention_pruning_method": args.attention_pruning_method, 
         "regularization": args.regularization,
