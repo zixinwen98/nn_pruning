@@ -59,7 +59,7 @@ class GlueTrainer(Trainer):
             eval_dataloaders.append(self.get_eval_dataloader(eval_dataset))
 
         # Temporarily disable metric computation
-        checkpoint_dir = self.checkpoint_dir()
+        checkpoint_dir = "checkpoints"
 
         output0 = None
         for eval_dataloader, task in zip(eval_dataloaders, tasks):
@@ -126,14 +126,8 @@ class GlueTrainer(Trainer):
 
     def run_dir(self):
         # Save model checkpoint
-        if hasattr(self, "_trial"):
-            trial = self._trial
-        else:
-            trial = None
-        
-        run_dir = Path(self.args.output_dir)
 
-        return run_dir
+        return Path(self.args.output_dir)
 
     def checkpoint_dir(self):
         # Save model checkpoint
@@ -161,7 +155,7 @@ class GlueTrainer(Trainer):
         evalTime = timeit.default_timer() - self._start_time
         cudaEvalTime, cudaEvalCount = self.model.get_results()
         cudaEvalTime = 1e-3 * cudaEvalTime
-        checkpoint_dir = self.checkpoint_dir()
+        checkpoint_dir = "checkpoints"
         suffix = "" if suffix is None else "_" + suffix
         timing_file = os.path.join(checkpoint_dir, f"evaluate_timing{suffix}.json")
 
