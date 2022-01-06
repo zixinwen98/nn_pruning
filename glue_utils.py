@@ -211,6 +211,7 @@ class GluePruningTrainer(SparseTrainer, GlueTrainer):
         return (loss, outputs) if return_outputs else loss
     
     def evaluate(self, eval_dataset=None, eval_example=None, ignore_keys=None):
+        self.schedule_threshold(False)
         data_args = self.data_args
         eval_dataset = self.additional_datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"]
 
