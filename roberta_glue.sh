@@ -1,4 +1,4 @@
-output_dir="./pruning_roberta_base_qqp"
+output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK magnitude threshold sigmoied_threshold
 do
 CUDA_VISIBLE_DEVICES=0 python glue_pruning.py \
@@ -12,7 +12,7 @@ CUDA_VISIBLE_DEVICES=0 python glue_pruning.py \
 --learning_rate 3e-4 \
 --num_train_epochs 5 \
 --output_dir $output_dir/$model_name_or_path \
---logging_steps 10 \
+--logging_steps 30 \
 --seed 0 \
 --weight_decay 0.1 \
 --report_to wandb \
