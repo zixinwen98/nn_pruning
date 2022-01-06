@@ -21,7 +21,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node
 --logging_dir $output_dir/log \
 --seed 0 \
 --weight_decay 0.1 \
---report_to all \
+--report_to wandb \
 --dense_pruning_method dense_prune_method \
 --attention_pruning_method disabled \
 --regularization disabled 
