@@ -108,7 +108,7 @@ if __name__ == "__main__":
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
-    batch_size = args.batch_size
+    #batch_size = args.batch_size
     learning_rate = args.learning_rate
     weight_decay = args.weight_decay                                                
     num_train_epochs = args.num_train_epochs
