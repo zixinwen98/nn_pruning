@@ -267,12 +267,12 @@ class GlueDataset:
         self.sentence1_key = sentence1_key
         self.sentence2_key = sentence2_key
 
-        if data_args.pad_to_max_length:
-            padding = "max_length"
-            max_length = data_args.max_seq_length
-        else: #pad later, dynamically at batch creation
-            padding = False
-            max_length = None
+        #if data_args.pad_to_max_length:
+        padding = "max_length"
+        max_length = data_args.max_seq_length
+        #else: #pad later, dynamically at batch creation
+            #padding = False
+            #max_length = None
 
         def preprocess_function(examples):
             # Tokenize the texts

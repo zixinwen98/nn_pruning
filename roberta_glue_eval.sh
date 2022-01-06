@@ -1,5 +1,5 @@
 output_dir="./pruning_roberta_base_qqp"
-for dense_prune_method in topK magnitude threshold sigmoied_threshold
+for dense_prune_method in topK #magnitude threshold sigmoied_threshold
 do
 python -m torch.distributed.launch --nproc_per_node=8 glue_pruning.py \
 --model_name_or_path roberta-base \
