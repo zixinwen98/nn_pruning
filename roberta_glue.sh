@@ -1,7 +1,7 @@
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK magnitude threshold sigmoied_threshold
 do
-CUDA_VISIBLE_DEVICES=0 python glue_pruning.py \
+python glue_pruning.py \
 --model_name_or_path roberta-base \
 --task_name mnli \
 --do_train \
