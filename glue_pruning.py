@@ -43,7 +43,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def Args():
     parser = argparse.ArgumentParser(description='PyTorch Roberta for GLUE+Pruning task')
-    parser.add_argument('--task_name', default='mnli', required=True, help='GLUE task choice', choices=('cola', 'mnli', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli'))
+    parser.add_argument('--task_name', default='mnli', help='GLUE task choice', choices=('cola', 'mnli', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli'))
     parser.add_argument('--dataset_path', default=None, help='location of data corpus')
     parser.add_argument('--model_name_or_path', default='roberta-base', help='name/location of model')
     parser.add_argument('--output_dir', default=None, help='location of output dir')
