@@ -7,7 +7,6 @@ from datasets import load_metric
 from transformers import (
     RobertaTokenizer,
     default_data_collator,
-    TrainingArguments,
     EvalPrediction,
     AutoConfig,
     TrainerCallback,
@@ -21,7 +20,7 @@ from nn_pruning.inference_model_patcher import optimize_model
 from nn_pruning.patch_coordinator import ModelPatchingCoordinator, SparseTrainingArguments
 from glue_utils import GlueDataset, GluePruningTrainer
 from model_roberta import RobertaForSequenceClassification
-from training_args import GlueDataTrainingArguments
+from training_args import GlueDataTrainingArguments, PruningTrainingArguments
 
 ## Preparation
 
@@ -127,7 +126,7 @@ if __name__ == "__main__":
         os.makedirs(args.output_dir, exist_ok=True)
         output_dir = os.path.join(args.output_dir, "glue_checkpoints")
 
-    train_args = TrainingArguments(
+    train_args = PruningTrainingArguments(
         do_train=do_train,
         do_eval=do_eval,
         output_dir=output_dir,
