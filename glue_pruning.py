@@ -182,8 +182,9 @@ if __name__ == "__main__":
         "schedule_type": args.schedule,
         "linear_min_parameters": args.prune_leftover,
         "mask_init": "constant",
-        # "mask_scale": 1,
+        "mask_scale": 0.0,
         "mask_scores_learning_rate": 0.01,
+        "max_grad_norm": 1.0,
     }
 
     if "threshold" in args.dense_pruning_method or "sigmoied_threshold" in args.dense_pruning_method:
