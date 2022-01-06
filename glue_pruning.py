@@ -53,9 +53,9 @@ def Args():
 
     parser.add_argument('--learning_rate', default=5e-4, type=float, help='learning rate')
     parser.add_argument('--weight_decay', default=0.1, type=float, help='weight decay')
-    parser.add_argument('--regu_lambda', default=.05, type=float, help='regularization lambda')
+    parser.add_argument('--regu_lambda', default=.1, type=float, help='regularization lambda')
     parser.add_argument('--label_smoothing', default=0.2, type=float, help='label smoothing')
-    parser.add_argument('--prune_leftover', default=.1, type=float, help='amount of params left over after pruning')
+    parser.add_argument('--prune_leftover', default=.5, type=float, help='amount of params left over after pruning')
     
     # parser.add_argument('--epochs', default=100, type=int, help='epochs')
     parser.add_argument('--schedule', default="linear", help='schedule type', choices=('linear', 'cos', 'constant'))
