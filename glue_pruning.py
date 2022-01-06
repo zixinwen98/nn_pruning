@@ -266,6 +266,7 @@ if __name__ == "__main__":
         data_args=data_args,
         train_dataset=train_dataset if train_args.do_train else None,
         eval_dataset=eval_dataset if train_args.do_eval else None,
+        additional_datasets=dataset.datasets,
         compute_metrics=compute_metrics,
         tokenizer=tokenizer,
         # Data collator will default to DataCollatorWithPadding, so we change it if we already did the padding.
@@ -281,14 +282,33 @@ if __name__ == "__main__":
         pruning_trainer.train()
 
         print("Evaluating")
-        results = pruning_trainer.evaluate(additional_datasets=dataset.datasets)
-        print('Results')
-        print(results)
+        results = pruning_trainer.evaluate()
 
         if args.output_dir:
             print("saving results")
             log_file = os.path.join(args.output_dir, 'log.df')
             pd.DataFrame(log_df).to_pickle(log_file)
+
+    
+    if args.do_eval:
+        pruning_trainer = GluePruningTrainer(
+            model=model,
+            sparse_args=sparse_args,
+            args=train_args,
+            data_args=data_args,
+            train_dataset=None,
+            eval_dataset=test_dataset if test_dataset is not None else eval_dataset,
+            additional_datasets=dataset.datasets,
+            compute_metrics=compute_metrics,
+            tokenizer=tokenizer,
+            # Data collator will default to DataCollatorWithPadding, so we change it if we already did the padding.
+            data_collator=default_data_collator if data_args.pad_to_max_length else None,
+        )
+
+        pruning_trainer.set_patch_coordinator(mpc)
+        results = pruning_trainer.evaluate(additional_datasets=dataset.datasets)
+        print('Results')
+        print(results)
 
     ## Import optimize_model to see the pruning result
     if args.do_prune:
@@ -312,6 +332,7 @@ if __name__ == "__main__":
             data_args=data_args,
             train_dataset=None,
             eval_dataset=eval_dataset,
+            additional_datasets=dataset.datasets,
             compute_metrics=compute_metrics,
             tokenizer=tokenizer,
             # Data collator will default to DataCollatorWithPadding, so we change it if we already did the padding.
@@ -329,6 +350,4 @@ if __name__ == "__main__":
 
         
     print("All done")
-    print(args.learning_rate)
-    print(args.do_train)
     
