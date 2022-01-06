@@ -6,7 +6,7 @@ python -m torch.distributed.launch --nproc_per_node=8 glue_pruning.py \
 --task_name mnli \
 --do_train \
 --do_eval \
---max_seq_length 512 \
+--max_seq_length 128 \
 --per_device_train_batch_size 16 \
 --per_device_eval_batch_size 16 \
 --learning_rate 3e-4 \
