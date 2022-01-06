@@ -50,12 +50,12 @@ def Args():
     parser.add_argument('--save_model', action='store_true', help='save the net')
     parser.add_argument('--seed', default=0, type=int, help='Random Seed')
 
-    parser.add_argument('--lr', default=5e-4, type=float, help='learning rate')
-    parser.add_argument('--wd', default=0.1, type=float, help='weight decay')
-    parser.add_argument('--regu_lamb', default=.05, type=float, help='regularization lambda')
+    parser.add_argument('--learning_rate', default=5e-4, type=float, help='learning rate')
+    parser.add_argument('--weight_decay', default=0.1, type=float, help='weight decay')
+    parser.add_argument('--regu_lambda', default=.05, type=float, help='regularization lambda')
     parser.add_argument('--label_smoothing', default=0.2, type=float, help='label smoothing')
     parser.add_argument('--prune_leftover', default=.1, type=float, help='amount of params left over after pruning')
-    parser.add_argument('--batch_size', default=1, type=int, help='batch size')
+    
     # parser.add_argument('--epochs', default=100, type=int, help='epochs')
     parser.add_argument('--schedule', default="linear", help='schedule type', choices=('linear', 'cos', 'constant'))
     parser.add_argument('--token_max_len', default=512, type=int, help='token max len')
@@ -69,12 +69,14 @@ def Args():
     parser.add_argument('--do_train', action='store_true', help='train the net')
     parser.add_argument('--do_evaluate', action='store_true', help='evaluate the net')
     parser.add_argument('--do_prune', action='store_true', help='prune the net')
+    parser.add_argument('--per_device_train_batch_size', default=16, type=int, help='train batch size per device')
+    parser.add_argument('--per_device_eval_batch_size', default=16, type=int, help='eval batch size per device')
 
     parser.add_argument('--train_samples', default=None, type=int, help='number of training samples to use')
     parser.add_argument('--valid_samples', default=None, type=int, help='number of validation samples to use')
 
     parser.add_argument('--logging_steps', default=10, type=int, help='log every number of steps')
-    parser.add_argument('--num_epochs', default=5, type=int, help='epochs')
+    parser.add_argument('--num_train_epochs', default=5, type=int, help='epochs')
     parser.add_argument('--report_to', action='store_true', help='report to wandb')
 
     return parser.parse_args("")
@@ -107,9 +109,9 @@ if __name__ == "__main__":
     np.random.seed(args.seed)
 
     batch_size = args.batch_size
-    learning_rate = args.lr
-    weight_decay = args.wd                                                  
-    num_train_epochs = args.num_epochs
+    learning_rate = args.learning_rate
+    weight_decay = args.weight_decay                                                
+    num_train_epochs = args.num_train_epochs
     logging_steps = args.logging_steps
     do_train = args.do_train
     do_eval = args.do_eval
@@ -129,8 +131,8 @@ if __name__ == "__main__":
         output_dir=output_dir,
         evaluation_strategy="epoch",
         num_train_epochs=num_train_epochs,
-        per_device_train_batch_size=batch_size,
-        per_device_eval_batch_size=batch_size,
+        per_device_train_batch_size=args.per_device_train_batch_size,
+        per_device_eval_batch_size=args.per_device_eval_batch_size,
         learning_rate=learning_rate,
         weight_decay=weight_decay,
         logging_steps=logging_steps,
@@ -149,8 +151,9 @@ if __name__ == "__main__":
     elif "sigmoied_threshold" in args.dense_pruning_method:
         initial_threshold = 0
         final_threshold = 0.1 # different meaning for movemenet
-
     regularization_final_lambda = 0
+    if args.regularization != "disabled":
+        regularization_final_lambda = args.regu_lambda
 
 
     hyperparams = {
@@ -191,7 +194,8 @@ if __name__ == "__main__":
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base').to(device)
 
     data_args = GlueDataTrainingArguments(
-        dataset_name = args.task
+        dataset_name = args.task,
+        max_seq_length=args.max_seq_length,
     )
 
     dataset = GlueDataset(
