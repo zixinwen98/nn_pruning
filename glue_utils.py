@@ -1,6 +1,36 @@
+from transformers.trainer import Trainer
+from transformers.trainer_utils import (
+    PREFIX_CHECKPOINT_DIR,
+)
+import logging
+import os
 
+import json
+from timeit import timeit
+import torch
+import numpy as np
+import random
+from datasets import load_metric, load_dataset
+from pathlib import Path
 
+from nn_pruning.sparse_trainer import SparseTrainer, TimingModule
+from nn_pruning.inference_model_patcher import optimize_model
 
+# Preparation
+
+task_to_keys = {
+    "cola": ("sentence", None),
+    "mnli": ("premise", "hypothesis"),
+    "mrpc": ("sentence1", "sentence2"),
+    "qnli": ("question", "sentence"),
+    "qqp": ("question1", "question2"),
+    "rte": ("sentence1", "sentence2"),
+    "sst2": ("sentence", None),
+    "stsb": ("sentence1", "sentence2"),
+    "wnli": ("sentence1", "sentence2"),
+}
+
+logger = logging.getLogger(__name__)
 ## Define GLUE trainer
 
 class GlueTrainer(Trainer):
@@ -188,3 +218,107 @@ class GluePruningTrainer(SparseTrainer, GlueTrainer):
         loss = loss + regu_loss * lamb
 
         return (loss, outputs) if return_outputs else loss
+
+## Define DataClass
+
+class GlueDataset:
+
+    def __init__(self, data_args, tokenizer):
+        self.data_args = data_args
+        self.tokenizer = tokenizer
+    
+    def create_dataset(self):
+        data_args = self.data_args
+        if data_args.dataset_name is not None:
+            datasets = load_dataset("glue", data_args.dataset_name)
+        elif data_args.train_file.endswith(".json"):
+            raise RuntimeError("loading from json not available at the moment")
+        else: raise RuntimeError("Please try loading from data_args")
+
+        if data_args.dataset_name is not None:
+            is_regression = data_args.dataset_name == "stsb"
+            if not is_regression:
+                label_list = datasets["train"].features["label"].names
+                num_labels = len(label_list)
+            else:
+                label_list = None
+                num_labels = 1
+        else:
+            is_regression = datasets["train"].features["label"].dtype in [
+                "float32",
+                "float64",
+            ]
+            if is_regression:
+                num_labels = 1
+            else:
+                # A useful fast method:
+                # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.unique
+                label_list = datasets["train"].unique("label")
+                label_list.sort()  # Let's sort it for determinism
+                num_labels = len(label_list)
+        
+        self.is_regression = is_regression
+        self.label_list = label_list
+        self.num_labels = num_labels
+
+    
+        if data_args.dataset_name is not None:
+            sentence1_key, sentence2_key = task_to_keys[data_args.dataset_name]
+        else:
+            non_label_column_names = [name for name in datasets["train"].column_names if name != "label"]
+            if "sentence1" in non_label_column_names and "sentence2" in non_label_column_names:
+                sentence1_key, sentence2_key = "sentence1", "sentence2"
+            else:
+                if len(non_label_column_names) >= 2:
+                    sentence1_key, sentence2_key = non_label_column_names[:2]
+                else:
+                    sentence1_key, sentence2_key = non_label_column_names[0], None
+        self.sentence1_key = sentence1_key
+        self.sentence2_key = sentence2_key
+
+        if data_args.pad_to_max_length:
+            padding = "max_length"
+            max_length = data_args.max_seq_length
+        else: #pad later, dynamically at batch creation
+            padding = False
+            max_length = None
+
+        def preprocess_function(examples):
+            # Tokenize the texts
+            args = (
+                (examples[sentence1_key],) if sentence2_key is None else (examples[sentence1_key], examples[sentence2_key])
+            )
+            result = self.tokenizer(*args, padding=padding, max_length=max_length, truncation=True)
+
+            return result
+
+        cache_file_names = {}
+        cache_dir = (Path(data_args.dataset_cache_dir) / data_args.dataset_name).resolve()
+        cache_dir.mkdir(exist_ok=True, parents=True)
+        for key in ["train"]:
+            cache_file_names[key] =  str(cache_dir / key)
+        
+        for key in ["validation", "test"]:
+            if data_args.dataset_name == "mnli":
+                for matched in ["matched", "mismatched"]:
+                    key_matched = "_".join([key, matched])
+                    cache_file_names[key_matched] = str(cache_dir / key_matched)
+            else:
+                cache_file_names[key] = str(cache_dir / key)
+
+        datasets = datasets.map(
+            preprocess_function,
+            batched=True,
+            load_from_cache_file=not data_args.overwrite_cache,
+            cache_file_names = cache_file_names
+        )
+        datasets = datasets
+        train_dataset = datasets["train"]
+        eval_dataset = datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"] 
+        if data_args.dataset_name is not None:
+            test_dataset = datasets["test_matched" if data_args.dataset_name == "mnli" else "test"]
+        # Log a few random samples from training set: 
+        for index in random.sample(range(len(train_dataset)), 3):
+            logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
+
+        return train_dataset, eval_dataset, test_dataset
