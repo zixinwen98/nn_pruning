@@ -5,8 +5,7 @@ export output_dir="./pruning_roberta_base_mnli"
 
 for dense_prune_method in uniqueness topK magnitude threshold sigmoied_threshold
 do
-CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 \
-examples/text-classification/run_glue.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 glue_pruning.py \
 --model_name_or_path roberta-base \
 --task_name mnli \
 --do_train \
