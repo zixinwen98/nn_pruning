@@ -40,9 +40,9 @@ class GlueTrainer(Trainer):
         self.eval_examples = eval_examples
         self.post_process_function = post_process_function
     
-    def evaluate(self, eval_dataset = None, eval_example=None, ignore_keys=None, dataset=None):
+    def evaluate(self, eval_dataset=None, eval_example=None, ignore_keys=None, additional_datasets=None):
         data_args = self.data_args
-        self.additional_datasets = dataset
+        self.additional_datasets = additional_datasets
         eval_dataset = self.additional_datasets["validation_matched" if data_args.dataset_name == "mnli" else "validation"]
 
         logger.info("*** Evaluate ***")
