@@ -80,6 +80,8 @@ def Args():
     parser.add_argument('--report_to', action='store_true', help='report to wandb')
     parser.add_argument('--max_seq_length', default=128, type=int, help='max sequence length in a batch')
 
+    parser.add_argument("--local_rank", type=int)
+
     return parser.parse_args()
 
 log_df = []
