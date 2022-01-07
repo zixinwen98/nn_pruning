@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 output_dir="./pruning_roberta_base_mnli"
-for dense_prune_method in topK magnitude threshold sigmoied_threshold
+for dense_prune_method in topK threshold sigmoied_threshold magnitude
 do
 python glue_pruning.py \
 --model_name_or_path roberta-base \
@@ -11,7 +11,7 @@ python glue_pruning.py \
 --per_device_train_batch_size 32 \
 --per_device_eval_batch_size 128 \
 --learning_rate 3e-5 \
---num_train_epochs 10 \
+--num_train_epochs 15 \
 --output_dir $output_dir/$model_name_or_path \
 --logging_steps 100 \
 --warmup_steps 5000 \
@@ -22,5 +22,5 @@ python glue_pruning.py \
 --dense_pruning_submethod 1d_alt \
 --attention_pruning_method disabled \
 --regularization l1 \
---prune_leftover 0.15
+--prune_leftover 0.1
 done
