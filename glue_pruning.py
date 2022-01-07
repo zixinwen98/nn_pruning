@@ -83,7 +83,7 @@ def Args():
 
     parser.add_argument("--local_rank", type=int)
     parser.add_argument("--warmup_steps", default=1200, type=int)
-
+    parser.add_argument("--warmup_ratio", default=0.06, type=float)
     return parser.parse_args()
 
 log_df = []
@@ -144,6 +144,7 @@ if __name__ == "__main__":
         weight_decay=weight_decay,
         logging_steps=logging_steps,
         disable_tqdm=False,
+        warmup_ratio=args.warmup_ratio,
         #report_to=args.report_to
     )
 
