@@ -1,3 +1,4 @@
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK magnitude threshold sigmoied_threshold
 do
