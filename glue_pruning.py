@@ -5,10 +5,10 @@ import pandas as pd
 import argparse
 from datasets import load_metric
 from transformers import (
-    RobertaTokenizer,
     default_data_collator,
     EvalPrediction,
     AutoConfig,
+    AutoTokenizer,
     TrainerCallback,
     AutoModelForSequenceClassification,
 )
@@ -201,7 +201,7 @@ if __name__ == "__main__":
             print(f"sparse_args does not have argument {k}")
 
     ## Load GLUE datasets
-    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
 
     data_args = GlueDataTrainingArguments(
         dataset_name = args.task_name,
