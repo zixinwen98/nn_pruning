@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK sigmoied_threshold uniqueness
 do
-for dense_pruning_submethod in 1d_alt 1d_alt
+for mask_lr in 1 0.1 0.01
 do
 python glue_pruning.py \
 --model_name_or_path roberta-base \
@@ -20,11 +20,12 @@ python glue_pruning.py \
 --warmup_steps 5000 \
 --seed 0 \
 --weight_decay 0.0 \
+--mask_lr $mask_lr \
 --report_to wandb \
 --dense_pruning_method $dense_prune_method \
 --dense_pruning_submethod $dense_pruning_submethod \
 --attention_pruning_method disabled \
 --regularization disabled \
---prune_leftover 0.05
+--prune_leftover 0.05 \
 done
 done

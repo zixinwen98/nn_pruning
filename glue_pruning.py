@@ -84,6 +84,7 @@ def Args():
     parser.add_argument("--local_rank", type=int)
     parser.add_argument("--warmup_steps", default=1200, type=int)
     parser.add_argument("--warmup_ratio", default=0.06, type=float)
+    parser.add_argument("--mask_lr", default=0.01, type=float)
     return parser.parse_args()
 
 log_df = []
@@ -174,18 +175,17 @@ if __name__ == "__main__":
         "final_threshold": final_threshold, 
         "initial_warmup": 1,
         "final_warmup": 2,
-        "warmup_steps": args.warmup_steps,
+        #"warmup_steps": args.warmup_steps,
         "attention_block_rows":32,
         "attention_block_cols":32,
         # "attention_block_rows":1,
         # "attention_block_cols":1,
         "attention_output_with_dense": 0,
-        "schedule_type": args.schedule,
+        #"schedule_type": args.schedule,
         "linear_min_parameters": args.prune_leftover,
         "mask_init": "constant",
         "mask_scale": 0.0,
-        "mask_scores_learning_rate": 0.01,
-        "max_grad_norm": 1.0,
+        "mask_scores_learning_rate": args.mask_lr,
     }
 
     if "threshold" in args.dense_pruning_method or "sigmoied_threshold" in args.dense_pruning_method:
