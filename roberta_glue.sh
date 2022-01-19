@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 output_dir="./pruning_roberta_base_mnli"
-for dense_prune_method in topK sigmoied_threshold uniqueness
+for dense_prune_method in sigmoied_threshold
 do
 for mask_lr in 1 0.1 0.01
 do
