@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in sigmoied_threshold
 do
-for mask_lr in 1 0.1 0.01
+for mask_lr in 0.1
 do
 python glue_pruning.py \
 --model_name_or_path roberta-base \
@@ -14,7 +14,7 @@ python glue_pruning.py \
 --per_device_eval_batch_size 128 \
 --learning_rate 3e-5 \
 --warmup_ratio 0.06 \
---num_train_epochs 10 \
+--num_train_epochs 10 \ 
 --output_dir $output_dir/$model_name_or_path \
 --logging_steps 100 \
 --warmup_steps 5000 \
