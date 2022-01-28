@@ -34,11 +34,14 @@ from transformers.modeling_utils import (
 )
 from transformers.utils import logging
 
+
 logger = logging.get_logger(__name__)
+
 
 _CHECKPOINT_FOR_DOC = "roberta-base"
 _CONFIG_FOR_DOC = "RobertaConfig"
 _TOKENIZER_FOR_DOC = "RobertaTokenizer"
+
 
 ROBERTA_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "roberta-base",
@@ -49,6 +52,7 @@ ROBERTA_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "roberta-large-openai-detector",
     # See all RoBERTa models at https://huggingface.co/models?filter=roberta
 ]
+
 
 ROBERTA_START_DOCSTRING = r"""
 
@@ -66,6 +70,7 @@ ROBERTA_START_DOCSTRING = r"""
             configuration. Check out the :meth:`~transformers.PreTrainedModel.from_pretrained` method to load the model
             weights.
 """
+
 
 ROBERTA_INPUTS_DOCSTRING = r"""
     Args:
@@ -157,6 +162,10 @@ class RobertaConfig(BertConfig):
         apply_adapter=False,
         adapter_type='houlsby',
         adapter_size=16, 
+        apply_prefix_tuning=False,
+        prefix_size=8,
+        apply_parallel_adapter=False,
+        parallel_adapter_size=16,
         **kwargs,
     ):
         """Constructs RobertaConfig."""
@@ -170,6 +179,10 @@ class RobertaConfig(BertConfig):
         self.adapter_size = adapter_size
         # NEW
         self.lora_dropout = lora_dropout
+        self.apply_prefix_tuning = apply_prefix_tuning
+        self.prefix_size = prefix_size
+        self.apply_parallel_adapter = apply_parallel_adapter
+        self.parallel_adapter_size = parallel_adapter_size
 
 
 class Adapter(nn.Module):
@@ -261,25 +274,6 @@ class RobertaEmbeddings(nn.Module):
             self.padding_idx + 1, sequence_length + self.padding_idx + 1, dtype=torch.long, device=inputs_embeds.device
         )
         return position_ids.unsqueeze(0).expand(input_shape)
-
-
-class RobertaClassificationHead(nn.Module):
-    """Head for sentence-level classification tasks."""
-
-    def __init__(self, config):
-        super().__init__()
-        self.dense = nn.Linear(config.hidden_size, config.hidden_size)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.out_proj = nn.Linear(config.hidden_size, config.num_labels)
-
-    def forward(self, features, **kwargs):
-        x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
-        x = self.dropout(x)
-        x = self.dense(x)
-        x = torch.tanh(x)
-        x = self.dropout(x)
-        x = self.out_proj(x)
-        return x
 
 
 class RobertaSelfAttention(nn.Module):
@@ -540,6 +534,8 @@ class RobertaLayer(nn.Module):
             self.crossattention = RobertaAttention(config)
         self.intermediate = RobertaIntermediate(config)
         self.output = RobertaOutput(config)
+        self.parallel_adapter = Adapter(dim=config.hidden_size, r=config.adapter_size)
+        self.apply_parallel_adapter = config.apply_parallel_adapter
 
     def forward(
         self,
@@ -607,6 +603,8 @@ class RobertaLayer(nn.Module):
     def feed_forward_chunk(self, attention_output):
         intermediate_output = self.intermediate(attention_output)
         layer_output = self.output(intermediate_output, attention_output)
+        if self.apply_parallel_adapter:
+            layer_output += self.parallel_adapter(attention_output)
         return layer_output
 
 
@@ -720,6 +718,25 @@ class RobertaPooler(nn.Module):
         pooled_output = self.dense(first_token_tensor)
         pooled_output = self.activation(pooled_output)
         return pooled_output
+
+
+class RobertaClassificationHead(nn.Module):
+    """Head for sentence-level classification tasks."""
+
+    def __init__(self, config):
+        super().__init__()
+        self.dense = nn.Linear(config.hidden_size, config.hidden_size)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.out_proj = nn.Linear(config.hidden_size, config.num_labels)
+
+    def forward(self, features, **kwargs):
+        x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
+        x = self.dropout(x)
+        x = self.dense(x)
+        x = torch.tanh(x)
+        x = self.dropout(x)
+        x = self.out_proj(x)
+        return x
 
 
 class RobertaPreTrainedModel(PreTrainedModel):

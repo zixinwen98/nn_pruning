@@ -19,7 +19,7 @@ import os
 from nn_pruning.inference_model_patcher import optimize_model
 from nn_pruning.patch_coordinator import ModelPatchingCoordinator, SparseTrainingArguments
 from glue_utils import GlueDataset, GluePruningTrainer
-from model_roberta import RobertaForSequenceClassification
+from model_roberta import RobertaForSequenceClassification, RobertaConfig
 from training_args import GlueDataTrainingArguments, PruningTrainingArguments
 
 ## Preparation
@@ -85,6 +85,15 @@ def Args():
     parser.add_argument("--warmup_steps", default=1200, type=int)
     parser.add_argument("--warmup_ratio", default=0.06, type=float)
     parser.add_argument("--mask_lr", default=0.01, type=float)
+
+    parser.add_argument("--apply_lora", action='store_true')
+    parser.add_argument("--lora_alpha", default=16.0, type=float)
+    parser.add_argument("--lora_r", default=8, type=int)
+    parser.add_argument("--apply_adapter", action="store_true")
+    parser.add_argument("--adapter_type", default="houlsby", choices=('houlsby', 'pfeiffer'))
+    parser.add_argument("--adapter_size", default=16, type=int)
+    parser.add_argument("--apply_parallel_adapter", action="store_true")
+    parser.add_argument("--parallel_adapter_size", action="store_true")
     return parser.parse_args()
 
 log_df = []
@@ -220,13 +229,29 @@ if __name__ == "__main__":
 
     model_name_or_path = args.model_name_or_path
 
-    if model_name_or_path == "roberta-base":
-        config_path = model_name_or_path
+    
+    config_path = model_name_or_path
 
-        model_config = AutoConfig.from_pretrained(
+    model_config = AutoConfig.from_pretrained(
+        config_path,
+        num_labels=dataset.num_labels,
+        finetuning_task=data_args.dataset_name,
+    )
+    if "roberta" in model_name_or_path:
+        model_config = RobertaConfig.from_pretrained(
             config_path,
             num_labels=dataset.num_labels,
             finetuning_task=data_args.dataset_name,
+            apply_lora=args.apply_lora,
+            lora_alpha = args.lora_alpha,
+            lora_r = args.lora_r,
+            apply_adapter = args.apply_adapter,
+            adapter_type = args.adapter_type,
+            adapter_size = args.adapter_size,
+            apply_parallel_adapter = args.apply_parallel_adapter,
+            parallel_adapter_size = args.parallel_adapter_size,
+            # NEW
+            #lora_dropout = args.lora_dropout
         )
 
     if "roberta" in args.model_name_or_path:

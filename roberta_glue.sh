@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 output_dir="./pruning_roberta_base_mnli"
-for dense_prune_method in sigmoied_threshold
+for dense_prune_method in topK
 do
 for mask_lr in 0.1
 do
@@ -27,11 +27,13 @@ python glue_pruning.py \
 --attention_pruning_method disabled \
 --regularization disabled \
 --prune_leftover 0.05 \
---apply_lora \
---lora_r 8 \
---lora_alpha 16 \
---apply_adapter \
---adapter_type houlsby \
---adapter_size 16
+--apply_parallel_adapter \
+--parallel_adapter_size 16 \
+#--apply_lora \
+#--lora_r 8 \
+#--lora_alpha 16 \
+#--apply_adapter \
+#--adapter_type houlsby \
+#--adapter_size 16
 done
 done
