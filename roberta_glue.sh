@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK
 do
-for mask_lr in 0.1
+for mask_lr in 0.01
 do
 for parallel_adapter_type in houlsby
 do
@@ -14,7 +14,7 @@ python glue_pruning.py \
 --max_seq_length 128 \
 --per_device_train_batch_size 32 \
 --per_device_eval_batch_size 128 \
---learning_rate 3e-4 \
+--learning_rate 3e-5 \
 --warmup_ratio 0.06 \
 --num_train_epochs 10 \
 --output_dir $output_dir/$model_name_or_path \
