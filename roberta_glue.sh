@@ -1,4 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK
 do
 for mask_lr in 0.1
@@ -13,8 +14,9 @@ python glue_pruning.py \
 --per_device_eval_batch_size 128 \
 --learning_rate 3e-4 \
 --warmup_ratio 0.06 \
---num_train_epochs 10 \ 
-#--logging_steps 100 \
+--num_train_epochs 10 \
+--output_dir $output_dir/$model_name_or_path \
+--logging_steps 100 \
 --warmup_steps 5000 \
 --seed 0 \
 --weight_decay 0.0 \
@@ -25,7 +27,13 @@ python glue_pruning.py \
 --attention_pruning_method disabled \
 --regularization disabled \
 --prune_leftover 0.1 \
-#--apply_parallel_adapter \
-#--parallel_adapter_size 16 
+--apply_parallel_adapter \
+--parallel_adapter_size 16 \
+#--apply_lora \
+#--lora_r 8 \
+#--lora_alpha 16 \
+#--apply_adapter \
+#--adapter_type houlsby \
+#--adapter_size 16
 done
 done
