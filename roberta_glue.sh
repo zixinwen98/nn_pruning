@@ -29,10 +29,3 @@ python glue_pruning.py \
 --parallel_adapter_size 16 
 done
 done
-#--output_dir $dir/$model_name_or_path \
-#--apply_lora \
-#--lora_r 8 \
-#--lora_alpha 16 \
-#--apply_adapter \
-#--adapter_type houlsby \
-#--adapter_size 16
