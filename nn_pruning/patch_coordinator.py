@@ -360,7 +360,7 @@ class ModelPatchingCoordinator:
         self,
         step: int = -1,
         total_step: int = -1,
-        warmup_steps: int = -1,
+        warmup_steps: int = 1000,
         training: bool = False,
         compile:bool = False,
     ):
