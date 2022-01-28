@@ -166,6 +166,7 @@ class RobertaConfig(BertConfig):
         prefix_size=8,
         apply_parallel_adapter=False,
         parallel_adapter_size=16,
+        parallel_adapter_type='houlsby',
         **kwargs,
     ):
         """Constructs RobertaConfig."""
@@ -183,6 +184,7 @@ class RobertaConfig(BertConfig):
         self.prefix_size = prefix_size
         self.apply_parallel_adapter = apply_parallel_adapter
         self.parallel_adapter_size = parallel_adapter_size
+        self.parallel_adapter_type = parallel_adapter_type
 
 
 class Adapter(nn.Module):
@@ -534,7 +536,7 @@ class RobertaLayer(nn.Module):
             self.crossattention = RobertaAttention(config)
         self.intermediate = RobertaIntermediate(config)
         self.output = RobertaOutput(config)
-        self.parallel_adapter = Adapter(dim=config.hidden_size, r=config.adapter_size)
+        self.parallel_adapter = Adapter(dim=config.hidden_size, r=config.adapter_size, act='swish' if config.parallel_adapter_type == 'houlsby' else 'relu')
         self.apply_parallel_adapter = config.apply_parallel_adapter
 
     def forward(

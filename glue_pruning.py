@@ -94,6 +94,7 @@ def Args():
     parser.add_argument("--adapter_size", default=16, type=int)
     parser.add_argument("--apply_parallel_adapter", action="store_true")
     parser.add_argument("--parallel_adapter_size", default=16, type=int)
+    parser.add_argument("--parallel_adapter_type", default="houlsby", choices=('houlsby', 'pfeiffer'))
     
     return parser.parse_args()
 

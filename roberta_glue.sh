@@ -4,6 +4,8 @@ for dense_prune_method in topK
 do
 for mask_lr in 0.1
 do
+for parallel_adapter_type in houlsby
+do
 python glue_pruning.py \
 --model_name_or_path roberta-base \
 --task_name mnli \
@@ -29,11 +31,13 @@ python glue_pruning.py \
 --prune_leftover 0.1 \
 --apply_parallel_adapter \
 --parallel_adapter_size 16 \
+--parallel_adapter_type $parallel_adapter_type \
 #--apply_lora \
 #--lora_r 8 \
 #--lora_alpha 16 \
 #--apply_adapter \
 #--adapter_type houlsby \
 #--adapter_size 16
+done
 done
 done
