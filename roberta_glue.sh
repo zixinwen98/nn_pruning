@@ -15,7 +15,6 @@ python glue_pruning.py \
 --learning_rate 3e-4 \
 --warmup_ratio 0.06 \
 --num_train_epochs 10 \ 
-#--output_dir $dir/$model_name_or_path \
 --logging_steps 100 \
 --warmup_steps 5000 \
 --seed 0 \
@@ -29,11 +28,12 @@ python glue_pruning.py \
 --prune_leftover 0.1 \
 --apply_parallel_adapter \
 --parallel_adapter_size 16 \
+done
+done
+#--output_dir $dir/$model_name_or_path \
 #--apply_lora \
 #--lora_r 8 \
 #--lora_alpha 16 \
 #--apply_adapter \
 #--adapter_type houlsby \
 #--adapter_size 16
-done
-done
