@@ -82,7 +82,7 @@ class SparseTrainer:
 
     def schedule_threshold(self, training: bool):
         step = self.state.global_step
-        self.patch_coordinator.schedule_threshold(step, self.state.max_steps, self.args.warmup_steps, training)
+        self.patch_coordinator.schedule_threshold(step, self.state.max_steps, self.sparse_args.warmup_steps, training)
 
     def training_step(self, *args, **kwargs):
         self.schedule_threshold(True)
