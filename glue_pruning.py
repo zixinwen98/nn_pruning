@@ -47,7 +47,7 @@ def Args():
     parser.add_argument('--task_name', default='mnli', help='GLUE task choice', choices=('cola', 'mnli', 'mrpc', 'qnli', 'qqp', 'rte', 'sst2', 'stsb', 'wnli'))
     parser.add_argument('--dataset_path', default=None, help='location of data corpus')
     parser.add_argument('--model_name_or_path', default='roberta-base', help='name/location of model')
-    parser.add_argument('--output_dir', default=None, help='location of output dir')
+    parser.add_argument('--output_dir', default=None,help='location of output dir')
     parser.add_argument('--save_model', action='store_true', help='save the net')
     parser.add_argument('--seed', default=0, type=int, help='Random Seed')
 
