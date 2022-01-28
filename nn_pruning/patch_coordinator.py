@@ -127,6 +127,12 @@ class SparseTrainingArguments:
             "help": "Run `final_warmup` * `warmup_steps` steps of threshold cool-down during which threshold stays"
         },
     )
+    warmup_steps: int = field(
+        default=1000,
+        metadata={
+            "help": "Run `initial_warmup` * `warmup_steps` steps of threshold warmup during which threshold stays at its `initial_threshold` value (sparsity schedule)."
+        },
+    )
 
     initial_ampere_temperature: float = field(
         default=0.0,
@@ -360,7 +366,7 @@ class ModelPatchingCoordinator:
         self,
         step: int = -1,
         total_step: int = -1,
-        warmup_steps: int = 1000,
+        warmup_steps: int = -1,
         training: bool = False,
         compile:bool = False,
     ):
