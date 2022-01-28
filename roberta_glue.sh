@@ -25,7 +25,7 @@ python glue_pruning.py \
 --attention_pruning_method disabled \
 --regularization disabled \
 --prune_leftover 0.1 \
---apply_parallel_adapter \
---parallel_adapter_size 16 
+#--apply_parallel_adapter \
+#--parallel_adapter_size 16 
 done
 done

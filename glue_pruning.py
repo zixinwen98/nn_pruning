@@ -85,7 +85,7 @@ def Args():
     parser.add_argument("--warmup_steps", default=1200, type=int)
     parser.add_argument("--warmup_ratio", default=0.06, type=float)
     parser.add_argument("--mask_lr", default=0.01, type=float)
-
+    '''
     parser.add_argument("--apply_lora", action='store_true')
     parser.add_argument("--lora_alpha", default=16.0, type=float)
     parser.add_argument("--lora_r", default=8, type=int)
@@ -94,6 +94,7 @@ def Args():
     parser.add_argument("--adapter_size", default=16, type=int)
     parser.add_argument("--apply_parallel_adapter", action="store_true")
     parser.add_argument("--parallel_adapter_size", action="store_true")
+    '''
     return parser.parse_args()
 
 log_df = []
