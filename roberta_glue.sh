@@ -1,5 +1,4 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK
 do
 for mask_lr in 0.1
@@ -27,7 +26,7 @@ python glue_pruning.py \
 --regularization disabled \
 --prune_leftover 0.1 \
 --apply_parallel_adapter \
---parallel_adapter_size 16 \
+--parallel_adapter_size 16 
 done
 done
 #--output_dir $dir/$model_name_or_path \
