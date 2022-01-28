@@ -1,5 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-output_dir="./pruning_roberta_base_mnli"
+dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK
 do
 for mask_lr in 0.1
@@ -15,7 +15,7 @@ python glue_pruning.py \
 --learning_rate 3e-4 \
 --warmup_ratio 0.06 \
 --num_train_epochs 10 \ 
---output_dir ./pruning_roberta_base_mnli/$model_name_or_path \
+--output_dir $dir/$model_name_or_path \
 --logging_steps 100 \
 --warmup_steps 5000 \
 --seed 0 \
