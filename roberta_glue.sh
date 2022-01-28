@@ -12,7 +12,7 @@ python glue_pruning.py \
 --max_seq_length 128 \
 --per_device_train_batch_size 32 \
 --per_device_eval_batch_size 128 \
---learning_rate 3e-5 \
+--learning_rate 3e-4 \
 --warmup_ratio 0.06 \
 --num_train_epochs 10 \ 
 --output_dir $output_dir/$model_name_or_path \
@@ -26,7 +26,7 @@ python glue_pruning.py \
 --dense_pruning_submethod $dense_pruning_submethod \
 --attention_pruning_method disabled \
 --regularization disabled \
---prune_leftover 0.05 \
+--prune_leftover 0.1 \
 --apply_parallel_adapter \
 --parallel_adapter_size 16 \
 #--apply_lora \
