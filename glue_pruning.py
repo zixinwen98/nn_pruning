@@ -96,6 +96,7 @@ def Args():
     parser.add_argument("--parallel_adapter_size", default=16, type=int)
     parser.add_argument("--parallel_adapter_type", default="houlsby", choices=('houlsby', 'pfeiffer'))
     
+    parser.add_argument("--initial_warmup", default=1, type=int)
     return parser.parse_args()
 
 log_df = []
@@ -184,7 +185,7 @@ if __name__ == "__main__":
         "ampere_pruning_method": "disabled",
         "initial_threshold": initial_threshold, 
         "final_threshold": final_threshold, 
-        "initial_warmup": 1,
+        "initial_warmup": args.initial_warmup,
         "final_warmup": 2,
         #"warmup_steps": args.warmup_steps,
         "attention_block_rows":32,

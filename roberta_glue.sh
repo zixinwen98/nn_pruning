@@ -16,6 +16,7 @@ python glue_pruning.py \
 --per_device_eval_batch_size 128 \
 --learning_rate 3e-5 \
 --warmup_ratio 0.06 \
+--initial_warmup 2 \
 --num_train_epochs 10 \
 --output_dir $output_dir/$model_name_or_path \
 --logging_steps 100 \
