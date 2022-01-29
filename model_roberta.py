@@ -536,9 +536,11 @@ class RobertaLayer(nn.Module):
             self.crossattention = RobertaAttention(config)
         self.intermediate = RobertaIntermediate(config)
         self.output = RobertaOutput(config)
-        self.parallel_adapter = Adapter(dim=config.hidden_size, r=config.adapter_size, act='swish' if config.parallel_adapter_type == 'houlsby' else 'relu')
-        self.apply_parallel_adapter = config.apply_parallel_adapter
-        self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
+        if config.apply_parallel_adapter:
+            self.parallel_adapter = Adapter(dim=config.hidden_size, r=config.adapter_size, act='swish' if config.parallel_adapter_type == 'houlsby' else 'relu')
+            self.apply_parallel_adapter = config.apply_parallel_adapter
+            self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
+            
     def forward(
         self,
         hidden_states,
