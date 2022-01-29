@@ -149,7 +149,7 @@ class SparseTrainer:
     def create_scheduler(self, num_training_steps: int):
         scheduler = get_linear_schedule_with_warmup(
             self.optimizer,
-            num_warmup_steps=self.args.warmup_steps,
+            num_warmup_steps=num_training_steps * self.args.warmup_ratio,
             num_training_steps=num_training_steps,
         )
         # scheduler = get_constant_schedule_with_warmup(
