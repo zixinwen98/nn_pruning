@@ -606,7 +606,7 @@ class RobertaLayer(nn.Module):
         intermediate_output = self.intermediate(attention_output)
         layer_output = self.output(intermediate_output, attention_output)
         if self.apply_parallel_adapter:
-            layer_output = self.parallel_adapter(attention_output, layer_output)
+            layer_output = 16 * self.parallel_adapter(attention_output, layer_output)
         return layer_output
 
 
