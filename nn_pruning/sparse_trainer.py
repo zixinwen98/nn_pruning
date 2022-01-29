@@ -17,6 +17,7 @@ Sparse Fine-tuning the library models for question answering.
 """
 # You can also adapt this script on your own question answering task. Pointers for this are left as comments.
 
+import math
 from typing import Dict
 from transformers.optimization import AdamW, get_linear_schedule_with_warmup, get_constant_schedule_with_warmup
 from .patch_coordinator import ModelPatchingCoordinator
