@@ -133,8 +133,6 @@ if __name__ == "__main__":
     logging_steps = args.logging_steps
     do_train = args.do_train
     do_eval = args.do_eval
-    # warmup for 10% of training steps
-    warmup_steps = logging_steps * num_train_epochs * 0.1
 
     if args.output_dir is None:
         output_dir = "glue_checkpoints"
