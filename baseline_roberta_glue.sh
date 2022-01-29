@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=4,5,6,7
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK
 do
