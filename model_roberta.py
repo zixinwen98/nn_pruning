@@ -419,7 +419,7 @@ class RobertaSelfAttention(nn.Module):
         return outputs
 
 
-class RobertaSelfOutput(nn.Module):
+class RobertaSelfOutput(nn.Module): 
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -538,7 +538,7 @@ class RobertaLayer(nn.Module):
         self.output = RobertaOutput(config)
         self.parallel_adapter = Adapter(dim=config.hidden_size, r=config.adapter_size, act='swish' if config.parallel_adapter_type == 'houlsby' else 'relu')
         self.apply_parallel_adapter = config.apply_parallel_adapter
-
+        self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
     def forward(
         self,
         hidden_states,
@@ -606,7 +606,7 @@ class RobertaLayer(nn.Module):
         intermediate_output = self.intermediate(attention_output)
         layer_output = self.output(intermediate_output, attention_output)
         if self.apply_parallel_adapter:
-            layer_output = 16 * self.parallel_adapter(attention_output, layer_output)
+            layer_output = self.LayerNorm(16 * self.parallel_adapter(attention_output, layer_output))
         return layer_output
 
 
