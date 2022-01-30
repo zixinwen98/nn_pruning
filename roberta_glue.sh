@@ -29,11 +29,11 @@ python glue_pruning.py \
 --regularization disabled \
 --prune_leftover 0.1 \
 --apply_adapter \
---adapter_type pfeiffer \
+--adapter_type houlsby \
 --adapter_size 64
-#--apply_parallel_adapter \
-#--parallel_adapter_size 16 \
-#--parallel_adapter_type $parallel_adapter_type \
+--apply_parallel_adapter \
+--parallel_adapter_size 64 \
+--parallel_adapter_type houlsby \
 #--apply_lora \
 #--lora_r 8 \
 #--lora_alpha 16 \
