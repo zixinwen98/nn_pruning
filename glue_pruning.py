@@ -185,7 +185,7 @@ if __name__ == "__main__":
         "final_threshold": final_threshold, 
         "initial_warmup": args.initial_warmup,
         "final_warmup": 2,
-        #"warmup_steps": args.warmup_steps,
+        "warmup_steps": args.warmup_steps,
         "attention_block_rows":32,
         "attention_block_cols":32,
         # "attention_block_rows":1,
