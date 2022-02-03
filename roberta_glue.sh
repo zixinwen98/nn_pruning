@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3
 output_dir="./pruning_roberta_base_mnli"
 for dense_prune_method in topK
 do
-for lr in 1e-5 2e-5 3e-5 5e-5 1e-2
+for prune_leftover in 0.7 0.5 0.3 0.2 0.1
 do
 python glue_pruning.py \
 --model_name_or_path roberta-base \
@@ -21,7 +21,7 @@ python glue_pruning.py \
 --warmup_steps 5000 \
 --seed 0 \
 --weight_decay 0.0 \
---mask_lr $mask_lr \
+--mask_lr 0.01 \
 --report_to wandb \
 --dense_pruning_method $dense_prune_method \
 --dense_pruning_submethod 1d_alt \
