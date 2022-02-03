@@ -12,7 +12,7 @@ python glue_pruning.py \
 --max_seq_length 128 \
 --per_device_train_batch_size 32 \
 --per_device_eval_batch_size 128 \
---learning_rate $lr \
+--learning_rate 3e-5 \
 --warmup_ratio 0.06 \
 --initial_warmup 2 \
 --num_train_epochs 10 \
