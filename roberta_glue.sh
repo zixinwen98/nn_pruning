@@ -27,7 +27,7 @@ python glue_pruning.py \
 --dense_pruning_submethod 1d_alt \
 --attention_pruning_method disabled \
 --regularization disabled \
---prune_leftover 0.1 \
+--prune_leftover $prune_leftover \
 --apply_parallel_adapter \
 --parallel_adapter_size 64 \
 --parallel_adapter_type pfeiffer \
