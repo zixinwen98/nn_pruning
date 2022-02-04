@@ -18,7 +18,7 @@ python glue_pruning.py \
 --num_train_epochs 10 \
 --output_dir $output_dir/$model_name_or_path/$lr \
 --logging_steps 100 \
---warmup_steps 5000 \
+--warmup_steps 1000 \
 --seed 0 \
 --weight_decay 0.0 \
 --mask_lr 0.01 \
